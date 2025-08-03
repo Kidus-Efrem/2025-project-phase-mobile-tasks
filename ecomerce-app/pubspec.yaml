@@ -95,27 +95,27 @@ flutter:
   #       - asset: fonts/TrajanPro_Bold.ttf
   #         weight: 700
 
-  fonts:
-    - family: Sora
-      fonts:
-        - asset: fonts/Sora-Regular.ttf
-          weight: 400
-        - asset: fonts/Sora-SemiBold.ttf
-          weight: 600
+  # fonts:
+  #   - family: Sora
+  #     fonts:
+  #       - asset: fonts/Sora-Regular.ttf
+  #         weight: 400
+  #       - asset: fonts/Sora-SemiBold.ttf
+  #         weight: 600
 
-    - family: Syne
-      fonts:
-        - asset: fonts/Syne-Medium.ttf
-          weight: 500
+  #   - family: Syne
+  #     fonts:
+  #       - asset: fonts/Syne-Medium.ttf
+  #         weight: 500
 
-    - family: Poppins
-      fonts:
-        - asset: fonts/Poppins-Regular.ttf
-          weight: 400
-        - asset: fonts/Poppins-Medium.ttf
-          weight: 500
-        - asset: fonts/Poppins-SemiBold.ttf
-          weight: 600
+  #   - family: Poppins
+  #     fonts:
+  #       - asset: fonts/Poppins-Regular.ttf
+  #         weight: 400
+  #       - asset: fonts/Poppins-Medium.ttf
+  #         weight: 500
+  #       - asset: fonts/Poppins-SemiBold.ttf
+  #         weight: 600
 
-  # For details regarding fonts from package dependencies,
-  # see https://flutter.dev/to/font-from-package
+  # # For details regarding fonts from package dependencies,
+  # # see https://flutter.dev/to/font-from-package

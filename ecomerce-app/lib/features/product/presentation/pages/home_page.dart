@@ -136,7 +136,7 @@ class _HomePageState extends State<HomePage> {
         backgroundColor: Colors.white,
         elevation: 0,
         surfaceTintColor: Colors.transparent,
-        title: const UserIntro(userName: 'Abdrehim', dateText: 'July 29, 2025'),
+        title: const UserIntro(userName: 'Kidus', dateText: 'July 29, 2025'),
         actions: const [_NotificationIcon()],
       ),
       body: Stack(
