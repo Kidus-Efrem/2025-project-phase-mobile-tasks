@@ -13,8 +13,6 @@ class UpdateProductUseCase extends UseCase<Unit, ProductParams> {
 
   @override
   Future<Either<Failure, Unit>> call(ProductParams params) async {
-    return BaseUseCaseHelper.handleRepositoryCallUnit(
-      () => _repository.updateProduct(params.product),
-    );
+    return _repository.updateProduct(params.product);
   }
 }

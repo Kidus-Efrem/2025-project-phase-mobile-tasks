@@ -13,8 +13,6 @@ class DeleteProductUseCase extends UseCase<Unit, IdParams> {
 
   @override
   Future<Either<Failure, Unit>> call(IdParams params) async {
-    return BaseUseCaseHelper.handleRepositoryCallUnit(
-      () => _repository.deleteProduct(params.id),
-    );
+    return _repository.deleteProduct(params.id);
   }
 }

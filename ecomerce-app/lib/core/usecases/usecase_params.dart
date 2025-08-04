@@ -1,13 +1,15 @@
 import '../../features/product/domain/entities/product.dart';
 
-class NoParams {}
+class NoParams {
+  const NoParams();
+}
 
 class IdParams {
   final String id;
-  IdParams(this.id);
+  const IdParams(this.id);
 }
 
 class ProductParams {
   final Product product;
-  ProductParams(this.product);
+  const ProductParams(this.product);
 }

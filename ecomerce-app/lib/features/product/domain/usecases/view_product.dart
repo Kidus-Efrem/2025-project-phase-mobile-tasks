@@ -14,8 +14,6 @@ class ViewProductUseCase extends UseCase<Product, IdParams> {
 
   @override
   Future<Either<Failure, Product>> call(IdParams params) async {
-    return BaseUseCaseHelper.handleRepositoryCall(
-      () => _repository.getProductById(params.id),
-    );
+    return _repository.getProductById(params.id);
   }
 }

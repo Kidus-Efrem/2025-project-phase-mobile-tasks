@@ -14,8 +14,6 @@ class ViewAllProductsUseCase extends UseCase<List<Product>, NoParams> {
 
   @override
   Future<Either<Failure, List<Product>>> call(NoParams params) async {
-    return BaseUseCaseHelper.handleRepositoryCall(
-      () => _repository.getAllProducts(),
-    );
+    return _repository.getAllProducts();
   }
 }

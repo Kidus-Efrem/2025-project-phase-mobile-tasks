@@ -42,6 +42,3 @@ abstract class BaseUseCaseHelper {
     }
   }
 }
-
-// Import the failure classes
-import '../error/failure.dart';

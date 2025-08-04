@@ -8,8 +8,14 @@ abstract class Failure extends Equatable {
 }
 
 // General failures
-class ServerFailure extends Failure {}
+class ServerFailure extends Failure {
+  const ServerFailure();
+}
 
-class CacheFailure extends Failure {}
+class CacheFailure extends Failure {
+  const CacheFailure();
+}
 
-class NetworkFailure extends Failure {}
+class NetworkFailure extends Failure {
+  const NetworkFailure();
+}
