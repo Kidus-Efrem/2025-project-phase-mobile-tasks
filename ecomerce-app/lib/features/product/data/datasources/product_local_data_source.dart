@@ -1,8 +1,8 @@
-import 'dart:convert';
-
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../../../core/constants/app_constants.dart';
 import '../../../../core/error/exception.dart';
+import '../../../../core/util/json_helper.dart';
 import '../models/product_model.dart';
 
 abstract class ProductLocalDataSource {
@@ -13,13 +13,11 @@ abstract class ProductLocalDataSource {
   Future<void> deleteProduct(String id);
 }
 
-// ignore: constant_identifier_names
-const CACHED_PRODUCT_LIST = 'CACHED_PRODUCT_LIST';
-
 class ProductLocalDataSourceImpl implements ProductLocalDataSource {
-  final SharedPreferences sharedPreferences;
+  final SharedPreferences _sharedPreferences;
 
-  ProductLocalDataSourceImpl({required this.sharedPreferences});
+  ProductLocalDataSourceImpl({required SharedPreferences sharedPreferences})
+      : _sharedPreferences = sharedPreferences;
 
   @override
   Future<List<ProductModel>> getLastProductList() async {
@@ -73,19 +71,20 @@ class ProductLocalDataSourceImpl implements ProductLocalDataSource {
     }
   }
 
-  // 🔁 Reusable helper: Read list from cache
+  /// Reusable helper: Read list from cache using JsonHelper
   Future<List<ProductModel>?> _readCachedProductList() async {
-    final jsonString = sharedPreferences.getString(CACHED_PRODUCT_LIST);
-    if (jsonString != null) {
-      final List<dynamic> decodedJson = json.decode(jsonString);
+    final jsonString = _sharedPreferences.getString(AppConstants.cachedProductListKey);
+    final decodedJson = JsonHelper.safeDecodeList(jsonString);
+
+    if (decodedJson != null) {
       return decodedJson.map((item) => ProductModel.fromJson(item)).toList();
     }
     return null;
   }
 
-  // 🔁 Reusable helper: Write list to cache
+  /// Reusable helper: Write list to cache using JsonHelper
   Future<void> _writeProductListToCache(List<ProductModel> products) async {
-    final jsonString = json.encode(products.map((p) => p.toJson()).toList());
-    await sharedPreferences.setString(CACHED_PRODUCT_LIST, jsonString);
+    final jsonString = JsonHelper.encodeList(products.map((p) => p.toJson()).toList());
+    await _sharedPreferences.setString(AppConstants.cachedProductListKey, jsonString);
   }
 }

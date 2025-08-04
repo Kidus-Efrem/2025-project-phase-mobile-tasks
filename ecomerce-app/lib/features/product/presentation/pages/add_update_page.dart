@@ -72,7 +72,7 @@ class _AddUpdatePageState extends State<AddUpdatePage> {
       id: '1',
       name: name,
 
-      imageUrl: 'images/default.jpeg', // Replace with actual path if available
+      imageUrl: 'assets/default.jpeg', // Replace with actual path if available
       price: priceValue,
 
       description: description,

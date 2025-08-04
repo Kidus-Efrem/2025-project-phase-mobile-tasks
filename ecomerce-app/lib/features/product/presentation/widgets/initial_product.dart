@@ -3,7 +3,7 @@ import '../../domain/entities/product.dart';
 List<Product> initialProducts = [
   const Product(
     id: '1',
-    imageUrl: 'images/leather_shoe1.jpeg',
+    imageUrl: 'assets/leather_shoe1.jpeg',
     name: 'Classic Leather Shoe',
     price: 89.99,
     description:
@@ -11,7 +11,7 @@ List<Product> initialProducts = [
   ),
   const Product(
     id: '2',
-    imageUrl: 'images/tshirt_men1.jpeg',
+    imageUrl: 'assets/tshirt_men1.jpeg',
     name: 'Slim Fit T-Shirt',
     price: 29.99,
     description:
@@ -19,7 +19,7 @@ List<Product> initialProducts = [
   ),
   const Product(
     id: '3',
-    imageUrl: 'images/phone1.jpeg',
+    imageUrl: 'assets/phone1.jpeg',
     name: 'Smartphone X12',
     price: 699.00,
     description:
@@ -27,7 +27,7 @@ List<Product> initialProducts = [
   ),
   const Product(
     id: '4',
-    imageUrl: 'images/sofa1.jpg',
+    imageUrl: 'assets/sofa1.jpg',
     name: 'Cozy Sofa',
     price: 449.50,
     description:

@@ -34,7 +34,9 @@ class SearchPage extends StatelessWidget {
           child: IconButton(
             icon: const Icon(Icons.arrow_back),
             color: const Color(0xFF3F51F3),
-            onPressed: () {},
+            onPressed: () {
+              Navigator.pop(context);
+            },
           ),
         ),
 

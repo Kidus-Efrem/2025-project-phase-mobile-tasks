@@ -4,6 +4,7 @@ import '../../features/product/domain/entities/product.dart';
 import '../../features/product/presentation/pages/add_update_page.dart';
 import '../../features/product/presentation/pages/details_page.dart';
 import '../../features/product/presentation/pages/home_page.dart';
+import '../../features/product/presentation/pages/search.dart'; // <-- added
 
 class AppRouter {
   static Route<dynamic> generateRoute(RouteSettings settings) {
@@ -18,6 +19,9 @@ class AppRouter {
       case '/update':
         final product = settings.arguments as Product?;
         return _scaleFadeTransition(AddUpdatePage(product: product));
+
+      case '/search': // <-- new case
+        return _fadeTransition(const SearchPage());
 
       default:
         return MaterialPageRoute(

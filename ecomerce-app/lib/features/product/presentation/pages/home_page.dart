@@ -24,7 +24,19 @@ class _HomePageState extends State<HomePage> {
   }
 
   void goToAddProductPage(BuildContext context) async {
-    final result = await Navigator.pushNamed<Product>(context, '/update');
+    final result = await Navigator.pushNamed(context, '/update');
+    final Product? product = result as Product?;
+    if (product != null) {
+      setState(() {
+        final index = products.indexWhere((p) => p.name == product.name);
+        if (index != -1) {
+          products[index] = product;
+        } else {
+          products.add(product);
+        }
+      });
+    }
+
     if (result != null) {
       setState(() {
         final index = products.indexWhere((p) => p.name == result.name);
@@ -37,7 +49,7 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-  Widget productHeading() {
+  Widget productHeading(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.all(18.0),
       child: Row(
@@ -63,8 +75,15 @@ class _HomePageState extends State<HomePage> {
                 8,
               ), // optional rounded corners
             ),
-            child: Icon(Icons.search, color: Colors.grey[400]),
+           child: IconButton(
+            padding: EdgeInsets.zero,
+            icon: Icon(Icons.search, color: Colors.grey[400]),
+            onPressed: () {
+              Navigator.pushNamed(context, '/search');
+            },
+            tooltip: 'Search',
           ),
+        ),
         ],
       ),
     );
@@ -144,7 +163,8 @@ class _HomePageState extends State<HomePage> {
           ListView(
             padding: const EdgeInsets.all(8),
             children: [
-              const ProductHeading(),
+              productHeading(context),
+
               const SizedBox(height: 8),
               ProductCardList(
                 products: products,
