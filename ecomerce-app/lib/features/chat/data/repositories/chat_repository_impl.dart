@@ -52,9 +52,7 @@ class ChatRepositoryImpl implements ChatRepository {
   Future<Either<Failure, List<Chat>>> getChats() async {
     if (await networkInfo.isConnected) {
       try {
-        // final token = _getCurrentUserToken();
-        final token =
-            "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6InJhakBnbWFpbC5jb20iLCJzdWIiOiI2ODk0YWE2YjdmNTM1NWJmZWM1ZDU1YzUiLCJpYXQiOjE3NTQ4OTk4ODMsImV4cCI6MTc1NTMzMTg4M30.mLxLumy_yANNIZxCN3PkG4SSaMRJCMiEGxZt-whve2k";
+        final token = _getCurrentUserToken();
         if (token == null) {
           return Left(AuthFailure());
         }
@@ -117,14 +115,10 @@ class ChatRepositoryImpl implements ChatRepository {
   Future<Either<Failure, List<Message>>> getMessages(String chatId) async {
     if (await networkInfo.isConnected) {
       try {
-        // final token = _getCurrentUserToken();
-        final token =
-            "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6InJhakBnbWFpbC5jb20iLCJzdWIiOiI2ODk0YWE2YjdmNTM1NWJmZWM1ZDU1YzUiLCJpYXQiOjE3NTQ4OTk4ODMsImV4cCI6MTc1NTMzMTg4M30.mLxLumy_yANNIZxCN3PkG4SSaMRJCMiEGxZt-whve2k";
-
+        final token = _getCurrentUserToken();
         if (token == null) {
           return Left(AuthFailure());
         }
-        chatId = "689604a2edd3b049e337f788";
         print(
           '🔄 Repository: Attempting to load messages for chat $chatId from remote API...',
         );
@@ -190,14 +184,10 @@ class ChatRepositoryImpl implements ChatRepository {
     if (await networkInfo.isConnected) {
 
       try {
-        // final token = _getCurrentUserToken();
-        final token =
-            "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6InJhakBnbWFpbC5jb20iLCJzdWIiOiI2ODk0YWE2YjdmNTM1NWJmZWM1ZDU1YzUiLCJpYXQiOjE3NTQ4OTk4ODMsImV4cCI6MTc1NTMzMTg4M30.mLxLumy_yANNIZxCN3PkG4SSaMRJCMiEGxZt-whve2k";
+        final token = _getCurrentUserToken();
         if (token == null) {
           return Left(AuthFailure());
         }
-        chatId = "689604a2edd3b049e337f788";
-
 
         print(
           '🔄 Repository: Attempting to send message to chat $chatId via remote API...',

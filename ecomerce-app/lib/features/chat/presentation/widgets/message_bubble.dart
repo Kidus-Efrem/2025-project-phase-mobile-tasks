@@ -4,11 +4,15 @@ import '../../domain/entities/message.dart';
 class MessageBubble extends StatelessWidget {
   final Message message;
   final bool isMe;
+  final String? senderLabel;
+  final String? avatarText;
 
   const MessageBubble({
     super.key,
     required this.message,
     required this.isMe,
+    this.senderLabel,
+    this.avatarText,
   });
 
   @override
@@ -27,7 +31,10 @@ class MessageBubble extends StatelessWidget {
             CircleAvatar(
               radius: 14,
               backgroundColor: Colors.pink.shade100,
-              child: const Icon(Icons.person, size: 16, color: Colors.white),
+              child: Text(
+                (avatarText ?? '?').toUpperCase(),
+                style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold),
+              ),
             ),
           if (!isMe) const SizedBox(width: 8),
           Flexible(
@@ -55,6 +62,21 @@ class MessageBubble extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  if (senderLabel != null && senderLabel!.isNotEmpty)
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 4),
+                      child: Align(
+                        alignment: isMe ? Alignment.centerRight : Alignment.centerLeft,
+                        child: Text(
+                          senderLabel!,
+                          style: TextStyle(
+                            color: isMe ? Colors.white70 : Colors.grey[600],
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                    ),
                   Text(
                     message.content,
                     style: TextStyle(
@@ -82,7 +104,10 @@ class MessageBubble extends StatelessWidget {
             CircleAvatar(
               radius: 14,
               backgroundColor: Colors.purple.shade100,
-              child: const Icon(Icons.person, size: 16, color: Colors.white),
+              child: Text(
+                (avatarText ?? '?').toUpperCase(),
+                style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold),
+              ),
             ),
         ],
       ),

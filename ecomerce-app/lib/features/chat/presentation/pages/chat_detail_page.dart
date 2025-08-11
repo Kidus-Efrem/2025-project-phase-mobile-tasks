@@ -8,6 +8,8 @@ import '../widgets/message_input.dart';
 import '../../domain/entities/chat.dart';
 import '../../domain/entities/message.dart';
 import '../../../authentication/domain/entities/user.dart';
+import '../../../authentication/presentation/bloc/auth_bloc.dart';
+import '../../../authentication/presentation/bloc/auth_state.dart';
 
 class ChatDetailPage extends StatefulWidget {
   final Chat chat;
@@ -115,9 +117,13 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
                     itemBuilder: (context, index) {
                       final message = state.messages[index];
                       final isMe = _isCurrentUser(message.sender);
+                      final selfInitials = _getInitials(_getCurrentUserName());
+                      final otherInitials = _getInitials(_getOtherUserName());
                       return MessageBubble(
                         message: message,
                         isMe: isMe,
+                        senderLabel: isMe ? 'You' : _getOtherUserName(),
+                        avatarText: isMe ? selfInitials : otherInitials,
                       );
                     },
                   );
@@ -160,14 +166,37 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
   }
 
   String _getOtherUserName() {
-    // This is a placeholder - you'll need to get the current user ID
-    // and determine which user is the "other" user
+    final authState = context.read<AuthBloc>().state;
+    if (authState is Authenticated) {
+      final currentId = authState.user.id;
+      if (widget.chat.user1.id == currentId) return widget.chat.user2.name;
+      if (widget.chat.user2.id == currentId) return widget.chat.user1.name;
+    }
     return widget.chat.user1.name;
   }
 
+  String _getCurrentUserName() {
+    final authState = context.read<AuthBloc>().state;
+    if (authState is Authenticated) {
+      return authState.user.name;
+    }
+    return 'You';
+  }
+
+  String _getInitials(String name) {
+    if (name.isEmpty) return '';
+    final parts = name.trim().split(' ');
+    if (parts.length >= 2) {
+      return (parts[0][0] + parts[1][0]).toUpperCase();
+    }
+    return name[0].toUpperCase();
+  }
+
   bool _isCurrentUser(User sender) {
-    // This is a placeholder - you'll need to get the current user ID
-    // and compare it with the sender ID
-    return sender.id == 'current_user';
+    final authState = context.read<AuthBloc>().state;
+    if (authState is Authenticated) {
+      return sender.id == authState.user.id;
+    }
+    return false;
   }
 }
