@@ -114,9 +114,9 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
     // Handle incoming message from socket
     print('🔍 ChatBloc - Message received from socket: ${event.messageData}');
     
-    // Convert the message data to a Message entity and emit MessageReceived state
+    // Convert the message data to a Message entity and emit MessageReceivedState
     if (event.messageData is Message) {
-      emit(MessageReceived(event.messageData as Message));
+      emit(MessageReceivedState(event.messageData as Message));
     } else {
       print('🔍 ChatBloc - Message data is not a Message entity: ${event.messageData.runtimeType}');
     }

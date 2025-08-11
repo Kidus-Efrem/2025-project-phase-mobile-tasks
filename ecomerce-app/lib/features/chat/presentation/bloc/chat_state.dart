@@ -44,10 +44,10 @@ class MessageSent extends ChatState {
   List<Object?> get props => [message];
 }
 
-class MessageReceived extends ChatState {
+class MessageReceivedState extends ChatState {
   final Message message;
 
-  const MessageReceived(this.message);
+  const MessageReceivedState(this.message);
 
   @override
   List<Object?> get props => [message];

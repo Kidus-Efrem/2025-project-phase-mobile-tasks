@@ -151,8 +151,8 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
                   listener: (context, state) {
                     print('🚀 ChatDetailPage - BlocListener state: ${state.runtimeType}');
                     
-                    if (state is MessageReceived) {
-                      print('🚀 ChatDetailPage - MessageReceived state detected');
+                    if (state is MessageReceivedState) {
+                      print('🚀 ChatDetailPage - MessageReceivedState detected');
                       print('🚀 ChatDetailPage - Received message content: "${state.message.content}"');
                       print('🚀 ChatDetailPage - Received message chat ID: "${state.message.chat.id}"');
                       print('🚀 ChatDetailPage - Current chat ID: "${widget.chat.id}"');
