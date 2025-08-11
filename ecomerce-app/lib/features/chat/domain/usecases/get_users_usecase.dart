@@ -1,7 +1,7 @@
 import 'package:dartz/dartz.dart';
 import '../../../../core/error/failure.dart';
 import '../../../../core/usecases/usecase.dart';
-import '../entities/user.dart';
+import '../../../authentication/domain/entities/user.dart';
 import '../repositories/chat_repository.dart';
 
 class GetUsersUseCase implements UseCase<List<User>, NoParams> {
