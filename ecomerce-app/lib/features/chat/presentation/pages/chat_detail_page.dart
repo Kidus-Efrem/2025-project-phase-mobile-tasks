@@ -209,31 +209,53 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
                       },
                     );
                   } else if (state is ChatError) {
-                  return Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          'Error: ${state.message}',
-                          style: const TextStyle(
-                            fontSize: 16,
-                            color: Colors.red,
+                    return Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            'Error: ${state.message}',
+                            style: const TextStyle(
+                              fontSize: 16,
+                              color: Colors.red,
+                            ),
                           ),
-                        ),
-                        const SizedBox(height: 16),
-                        ElevatedButton(
-                          onPressed: () {
-                            context.read<ChatBloc>().add(LoadMessages(widget.chat.id));
-                          },
-                          child: const Text('Retry'),
-                        ),
-                      ],
-                    ),
+                          const SizedBox(height: 16),
+                          ElevatedButton(
+                            onPressed: () {
+                              context.read<ChatBloc>().add(LoadMessages(widget.chat.id));
+                            },
+                            child: const Text('Retry'),
+                          ),
+                        ],
+                      ),
+                    );
+                  }
+                  
+                  // Default case - show messages if we have any, otherwise show "No messages"
+                  if (_messages.isNotEmpty) {
+                    return ListView.builder(
+                      controller: _scrollController,
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                      itemCount: _messages.length,
+                      itemBuilder: (context, index) {
+                        final message = _messages[index];
+                        final isMe = _isCurrentUser(message.sender);
+                        final selfInitials = _getInitials(_getCurrentUserName());
+                        final otherInitials = _getInitials(_getOtherUserName());
+                        return MessageBubble(
+                          message: message,
+                          isMe: isMe,
+                          senderLabel: isMe ? 'You' : _getOtherUserName(),
+                          avatarText: isMe ? selfInitials : otherInitials,
+                        );
+                      },
+                    );
+                  }
+                  
+                  return const Center(
+                    child: Text('No messages yet'),
                   );
-                }
-                return const Center(
-                  child: Text('No messages yet'),
-                );
               },
             ),
           ),
@@ -270,7 +292,7 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
     if (parts.length >= 2) {
       return (parts[0][0] + parts[1][0]).toUpperCase();
     }
-    return name[0].toUpperCase();
+    return name.isNotEmpty ? name[0].toUpperCase() : '';
   }
 
   bool _isCurrentUser(User sender) {
@@ -279,5 +301,13 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
       return sender.id == authState.user.id;
     }
     return false;
+  }
+
+  User? _getCurrentUser() {
+    final authState = context.read<AuthBloc>().state;
+    if (authState is Authenticated) {
+      return authState.user;
+    }
+    return null;
   }
 }
