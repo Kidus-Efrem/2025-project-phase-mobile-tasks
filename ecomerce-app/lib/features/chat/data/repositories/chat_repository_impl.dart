@@ -48,6 +48,14 @@ class ChatRepositoryImpl implements ChatRepository {
     }
   }
 
+  User? _getCurrentUser() {
+    final state = authBloc.state;
+    if (state is Authenticated) {
+      return state.user;
+    }
+    return null;
+  }
+
   @override
   Future<Either<Failure, List<Chat>>> getChats() async {
     if (await networkInfo.isConnected) {
@@ -176,47 +184,50 @@ class ChatRepositoryImpl implements ChatRepository {
   }
 
   @override
-Future<Either<Failure, Message>> sendMessage(
-  String chatId,
-  String content,
-  String type,
-) async {
-  if (await networkInfo.isConnected) {
-    try {
-      final token = _getCurrentUserToken();
-      if (token == null) {
-        return Left(AuthFailure());
+  Future<Either<Failure, Message>> sendMessage(
+    String chatId,
+    String content,
+    String type,
+  ) async {
+    if (await networkInfo.isConnected) {
+      try {
+        final token = _getCurrentUserToken();
+        if (token == null) {
+          return Left(AuthFailure());
+        }
+
+        print('🔄 Repository: Sending message to chat $chatId via socket only...');
+
+        // Send message via socket service only
+        await chatService.sendMessage(chatId, content, type);
+        print('✅ Repository: Message sent successfully via socket');
+
+        // Create a temporary message object for UI feedback
+        // The real message will come back through the socket stream
+        final currentUser = _getCurrentUser();
+        final tempMessage = MessageModel(
+          id: DateTime.now().millisecondsSinceEpoch.toString(), // Temporary ID
+          sender: currentUser ?? UserModel(id: '', name: 'You', email: ''),
+          chat: ChatModel(
+            id: chatId,
+            user1: UserModel(id: '', name: '', email: ''),
+            user2: UserModel(id: '', name: '', email: ''),
+          ),
+          content: content,
+          type: type,
+          createdAt: DateTime.now(),
+        );
+
+        return Right(tempMessage);
+      } catch (e) {
+        print('❌ Repository: Socket send error: $e');
+        return Left(ServerFailure());
       }
-
-      print('🔄 Repository: Attempting to send message to chat $chatId via socket service...');
-
-      // Send message via socket only (no return value)
-      chatService.sendMessage(chatId, content, type);
-      print('✅ Repository: Message sent via socket service (void return)');
-
-      // Return a dummy Message to satisfy the return type
-      final message = MessageModel(
-        id: '', // or generate a temporary ID if needed
-        sender: UserModel(id: '', name: '', email: ''), // fill with actual user if available
-        chat: ChatModel(id: chatId, user1: UserModel(id: '', name: '', email: ''), user2: UserModel(id: '', name: '', email: '')), // fill with actual chat if available
-        content: content,
-        type: type,
-        createdAt: DateTime.now(),
-      );
-
-      return Right(message);
-    } on ServerException {
-      print('❌ Repository: Server exception occurred');
-      return Left(ServerFailure());
-    } catch (e) {
-      print('❌ Repository: Unexpected error: $e');
-      return Left(ServerFailure());
+    } else {
+      print('❌ Repository: No internet connection');
+      return Left(NetworkFailure());
     }
-  } else {
-    print('❌ Repository: No internet connection');
-    return Left(NetworkFailure());
   }
-}
 
   @override
   Future<Either<Failure, void>> connectToSocket(String token) async {
