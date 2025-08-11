@@ -188,8 +188,9 @@ class _ChatListPageState extends State<ChatListPage> with RouteAware {
           BlocListener<AuthBloc, AuthState>(
             listener: (context, state) {
               if (state is Authenticated) {
-                print('🔐 ChatListPage: User authenticated, refreshing chats...');
+                print('🔐 ChatListPage: User authenticated, refreshing chats and users...');
                 context.read<ChatBloc>().add(LoadChats());
+                context.read<ChatBloc>().add(LoadUsers());
               } else if (state is Unauthenticated) {
                 print('🔐 ChatListPage: User unauthenticated');
                 // Navigate to sign in when user logs out
@@ -202,20 +203,29 @@ class _ChatListPageState extends State<ChatListPage> with RouteAware {
         ],
         child: BlocBuilder<ChatBloc, ChatState>(
           builder: (context, state) {
+            print('🔍 ChatListPage - Current state: ${state.runtimeType}');
+            print('🔍 ChatListPage - Local users count: ${_users.length}');
+            print('🔍 ChatListPage - Local chats count: ${_chats.length}');
             // Update local state based on bloc state
             if (state is UsersLoaded) {
               _users = state.users;
               print('🔍 ChatListPage - Users loaded: ${_users.length} users');
+              for (int i = 0; i < _users.length; i++) {
+                print('🔍 ChatListPage - User $i: "${_users[i].name}" (${_users[i].email})');
+              }
             } else if (state is ChatsLoaded) {
               _chats = state.chats;
               print('🔍 ChatListPage - Chats loaded: ${_chats.length} chats');
+              for (int i = 0; i < _chats.length; i++) {
+                print('🔍 ChatListPage - Chat $i: ID="${_chats[i].id}", User1="${_chats[i].user1.name}", User2="${_chats[i].user2.name}"');
+              }
             }
             
             if (state is ChatLoading) {
               return const Center(
                 child: CircularProgressIndicator(),
               );
-            } else if (_chats.isNotEmpty || _users.isNotEmpty) {
+            } else if (state is UsersLoaded || state is ChatsLoaded || _chats.isNotEmpty || _users.isNotEmpty) {
               return Column(
                 children: [
                   // Top header with search and stories/status row
@@ -277,24 +287,27 @@ class _ChatListPageState extends State<ChatListPage> with RouteAware {
                           height: 86,
                           child: ListView.separated(
                             scrollDirection: Axis.horizontal,
+                            padding: const EdgeInsets.symmetric(horizontal: 4),
                             itemCount: _users.isEmpty ? 1 : _users.length + 1,
                             separatorBuilder: (_, __) => const SizedBox(width: 12),
                             itemBuilder: (context, index) {
                               // First item: "My status"
                               if (index == 0) {
-                                return Column(
-                                  children: [
-                                    Stack(
-                                      children: [
-                                        CircleAvatar(
-                                          radius: 26,
-                                          backgroundColor: Colors.white,
-                                          child: CircleAvatar(
-                                            radius: 24,
-                                            backgroundColor: Colors.blue.shade50,
-                                            child: const Icon(Icons.person, color: Colors.blue),
+                                return SizedBox(
+                                  width: 70,
+                                  child: Column(
+                                    children: [
+                                      Stack(
+                                        children: [
+                                          CircleAvatar(
+                                            radius: 26,
+                                            backgroundColor: Colors.white,
+                                            child: CircleAvatar(
+                                              radius: 24,
+                                              backgroundColor: Colors.blue.shade50,
+                                              child: const Icon(Icons.person, color: Colors.blue),
+                                            ),
                                           ),
-                                        ),
                                         Positioned(
                                           right: 0,
                                           bottom: 0,
@@ -327,8 +340,10 @@ class _ChatListPageState extends State<ChatListPage> with RouteAware {
                               }
                               final user = _users[index - 1];
                               final name = user.name;
-                              return Column(
-                                children: [
+                              return SizedBox(
+                                width: 70,
+                                child: Column(
+                                  children: [
                                   Container(
                                     padding: const EdgeInsets.all(2),
                                     decoration: BoxDecoration(
@@ -368,17 +383,15 @@ class _ChatListPageState extends State<ChatListPage> with RouteAware {
                                     ),
                                   ),
                                   const SizedBox(height: 6),
-                                  SizedBox(
-                                    width: 60,
-                                    child: Text(
-                                      name.split(' ').first,
-                                      style: const TextStyle(color: Colors.white, fontSize: 12),
-                                      overflow: TextOverflow.ellipsis,
-                                      textAlign: TextAlign.center,
-                                    ),
+                                  Text(
+                                    name.split(' ').first,
+                                    style: const TextStyle(color: Colors.white, fontSize: 12),
+                                    overflow: TextOverflow.ellipsis,
+                                    textAlign: TextAlign.center,
                                   ),
                                 ],
-                              );
+                              ),
+                            );
                             },
                           ),
                         ),
@@ -419,6 +432,7 @@ class _ChatListPageState extends State<ChatListPage> with RouteAware {
                         : RefreshIndicator(
                             onRefresh: () async {
                               context.read<ChatBloc>().add(LoadChats());
+                              context.read<ChatBloc>().add(LoadUsers());
                             },
                             child: ListView.builder(
                               itemCount: _chats.length,
@@ -467,6 +481,7 @@ class _ChatListPageState extends State<ChatListPage> with RouteAware {
                     ElevatedButton(
                       onPressed: () {
                         context.read<ChatBloc>().add(LoadChats());
+                        context.read<ChatBloc>().add(LoadUsers());
                       },
                       child: const Text('Retry'),
                     ),
