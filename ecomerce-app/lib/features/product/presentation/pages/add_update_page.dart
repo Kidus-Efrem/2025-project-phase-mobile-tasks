@@ -1,6 +1,9 @@
 // ignore: file_names
+import 'dart:io';
 import 'package:flutter/material.dart';
 
+import '../../../../core/services/image_picker_service.dart';
+import '../../data/models/product_model.dart';
 import '../../domain/entities/product.dart';
 import '../widgets/label_text.dart';
 
@@ -17,6 +20,10 @@ class _AddUpdatePageState extends State<AddUpdatePage> {
   late TextEditingController categoryController;
   late TextEditingController priceController;
   late TextEditingController descriptionController;
+
+  final ImagePickerService _imagePickerService = ImagePickerService();
+  File? _selectedImageFile;
+  String? _selectedImagePath;
 
   @override
   void initState() {
@@ -42,6 +49,22 @@ class _AddUpdatePageState extends State<AddUpdatePage> {
     Navigator.pushNamedAndRemoveUntil(context, '/', (route) => false);
   }
 
+  Future<void> _pickImage() async {
+    try {
+      final File? imageFile = await _imagePickerService.pickImage();
+      if (imageFile != null) {
+        setState(() {
+          _selectedImageFile = imageFile;
+          _selectedImagePath = imageFile.path;
+        });
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error picking image: $e')),
+      );
+    }
+  }
+
   void addProduct() {
     final name = nameController.text.trim();
     final category = categoryController.text.trim();
@@ -60,6 +83,15 @@ class _AddUpdatePageState extends State<AddUpdatePage> {
       return;
     }
 
+    if (_selectedImageFile == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please select an image before adding the product.'),
+        ),
+      );
+      return;
+    }
+
     double? priceValue = double.tryParse(price);
     if (priceValue == null) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -68,19 +100,16 @@ class _AddUpdatePageState extends State<AddUpdatePage> {
       return;
     }
 
-    final newProduct = Product(
-      id: '1',
+    final newProduct = ProductModel.forUpload(
       name: name,
-
-      imageUrl: 'assets/default.jpeg', // Replace with actual path if available
       price: priceValue,
-
       description: description,
+      imageFilePath: _selectedImagePath!,
     );
-
+    // print('New ProductModel created: $newProduct');
+    print('Name: $name, Price: $priceValue, Description: $description, Image:$_selectedImagePath');
     Navigator.pop(context, newProduct);
-
-    // Return new product to previous screen
+    print("after pop");
   }
 
   @override
@@ -130,32 +159,49 @@ class _AddUpdatePageState extends State<AddUpdatePage> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // Upload Container
-              Container(
-                height: 190,
-                decoration: BoxDecoration(
-                  color: const Color(0x0ff3f3f3),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                alignment: Alignment.center,
-                child: const SizedBox(
-                  width: 120,
-                  height: 93,
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Icon(Icons.image, size: 48, color: Colors.grey),
-                      SizedBox(height: 8),
-                      Text(
-                        'Upload Image',
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w500,
-                          fontFamily: 'Poppins',
-                        ),
-                      ),
-                    ],
+              GestureDetector(
+                onTap: _pickImage,
+                child: Container(
+                  height: 190,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFF3F3F3),
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(
+                      color: _selectedImageFile != null ? Colors.green : Colors.grey.shade300,
+                      width: 2,
+                    ),
                   ),
+                  alignment: Alignment.center,
+                  child: _selectedImageFile != null
+                      ? ClipRRect(
+                          borderRadius: BorderRadius.circular(6),
+                          child: Image.file(
+                            _selectedImageFile!,
+                            width: double.infinity,
+                            height: double.infinity,
+                            fit: BoxFit.cover,
+                          ),
+                        )
+                      : const SizedBox(
+                          width: 120,
+                          height: 93,
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Icon(Icons.image, size: 48, color: Colors.grey),
+                              SizedBox(height: 8),
+                              Text(
+                                'Tap to Upload Image',
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w500,
+                                  fontFamily: 'Poppins',
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
                 ),
               ),
 

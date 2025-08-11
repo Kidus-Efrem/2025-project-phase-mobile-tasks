@@ -19,3 +19,7 @@ class CacheFailure extends Failure {
 class NetworkFailure extends Failure {
   const NetworkFailure();
 }
+
+class AuthFailure extends Failure {
+  const AuthFailure();
+}

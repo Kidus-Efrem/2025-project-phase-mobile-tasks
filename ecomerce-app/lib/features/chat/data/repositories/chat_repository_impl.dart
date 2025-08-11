@@ -1,0 +1,260 @@
+import 'package:dartz/dartz.dart';
+import '../../../../core/error/failure.dart';
+import '../../../../core/error/exception.dart';
+import '../../../../core/network/network_info.dart';
+import '../../domain/entities/chat.dart';
+import '../../domain/entities/message.dart';
+import '../../domain/repositories/chat_repository.dart';
+import '../datasources/chat_mock_data_source.dart';
+import '../datasources/chat_remote_data_source.dart';
+import '../services/chat_service.dart';
+import '../../../authentication/presentation/bloc/auth_bloc.dart';
+import '../../../authentication/presentation/bloc/auth_state.dart';
+
+class ChatRepositoryImpl implements ChatRepository {
+  final ChatRemoteDataSource remoteDataSource;
+  final ChatMockDataSource mockDataSource;
+  final ChatService chatService;
+  final NetworkInfo networkInfo;
+  final AuthBloc authBloc;
+
+  ChatRepositoryImpl({
+    required this.remoteDataSource,
+    required this.mockDataSource,
+    required this.chatService,
+    required this.networkInfo,
+    required this.authBloc,
+  });
+
+  String? _getCurrentUserToken() {
+    final state = authBloc.state;
+    if (state is Authenticated && state.user.token != null) {
+      print(
+        '🔑 Repository: Using token from authenticated user: ${state.user.token!.substring(0, 10)}...',
+      );
+      return state.user.token;
+    } else if (state is Authenticated && state.user.token == null) {
+      print('❌ Repository: User is authenticated but has no token');
+      return null;
+    } else if (state is Unauthenticated) {
+      print('❌ Repository: User is not authenticated');
+      return null;
+    } else if (state is AuthLoading) {
+      print('⏳ Repository: Authentication is in progress');
+      return null;
+    } else {
+      print('❌ Repository: Unexpected auth state: ${state.runtimeType}');
+      return null;
+    }
+  }
+
+  @override
+  Future<Either<Failure, List<Chat>>> getChats() async {
+    if (await networkInfo.isConnected) {
+      try {
+        // final token = _getCurrentUserToken();
+        final token =
+            "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6InJhakBnbWFpbC5jb20iLCJzdWIiOiI2ODk0YWE2YjdmNTM1NWJmZWM1ZDU1YzUiLCJpYXQiOjE3NTQ4OTk4ODMsImV4cCI6MTc1NTMzMTg4M30.mLxLumy_yANNIZxCN3PkG4SSaMRJCMiEGxZt-whve2k";
+        if (token == null) {
+          return Left(AuthFailure());
+        }
+
+        print('🔄 Repository: Attempting to load chats from remote API...');
+        final chatModels = await remoteDataSource.getChats(token);
+        final chats = chatModels.cast<Chat>();
+        print(
+          '✅ Repository: Successfully loaded ${chats.length} chats from API',
+        );
+        return Right(chats);
+      } on ServerException {
+        print(
+          '❌ Repository: Server exception occurred, falling back to mock data',
+        );
+        // Fallback to mock data if remote API fails
+        try {
+          final mockChats = await mockDataSource.getChats();
+          final chats = mockChats.cast<Chat>();
+          print(
+            '🔄 Repository: Using mock data as fallback - ${chats.length} chats',
+          );
+          return Right(chats);
+        } catch (mockError) {
+          print('❌ Repository: Mock data also failed: $mockError');
+          return Left(ServerFailure());
+        }
+      } catch (e) {
+        print('❌ Repository: Unexpected error: $e, falling back to mock data');
+        // Fallback to mock data if unexpected error occurs
+        try {
+          final mockChats = await mockDataSource.getChats();
+          final chats = mockChats.cast<Chat>();
+          print(
+            '🔄 Repository: Using mock data as fallback - ${chats.length} chats',
+          );
+          return Right(chats);
+        } catch (mockError) {
+          print('❌ Repository: Mock data also failed: $mockError');
+          return Left(ServerFailure());
+        }
+      }
+    } else {
+      print('❌ Repository: No internet connection, using mock data');
+      try {
+        final mockChats = await mockDataSource.getChats();
+        final chats = mockChats.cast<Chat>();
+        print(
+          '🔄 Repository: Using mock data due to no internet - ${chats.length} chats',
+        );
+        return Right(chats);
+      } catch (mockError) {
+        print('❌ Repository: Mock data failed: $mockError');
+        return Left(NetworkFailure());
+      }
+    }
+  }
+
+  @override
+  Future<Either<Failure, List<Message>>> getMessages(String chatId) async {
+    if (await networkInfo.isConnected) {
+      try {
+        // final token = _getCurrentUserToken();
+        final token =
+            "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6InJhakBnbWFpbC5jb20iLCJzdWIiOiI2ODk0YWE2YjdmNTM1NWJmZWM1ZDU1YzUiLCJpYXQiOjE3NTQ4OTk4ODMsImV4cCI6MTc1NTMzMTg4M30.mLxLumy_yANNIZxCN3PkG4SSaMRJCMiEGxZt-whve2k";
+
+        if (token == null) {
+          return Left(AuthFailure());
+        }
+        chatId = "689604a2edd3b049e337f788";
+        print(
+          '🔄 Repository: Attempting to load messages for chat $chatId from remote API...',
+        );
+        final messageModels = await remoteDataSource.getMessages(chatId, token);
+        final messages = messageModels.cast<Message>();
+        print(
+          '✅ Repository: Successfully loaded ${messages.length} messages from API',
+        );
+        return Right(messages);
+      } on ServerException {
+        print(
+          '❌ Repository: Server exception occurred, falling back to mock data',
+        );
+        // Fallback to mock data if remote API fails
+        try {
+          final mockMessages = await mockDataSource.getMessages(chatId);
+          final messages = mockMessages.cast<Message>();
+          print(
+            '🔄 Repository: Using mock data as fallback - ${messages.length} messages',
+          );
+          return Right(messages);
+        } catch (mockError) {
+          print('❌ Repository: Mock data also failed: $mockError');
+          return Left(ServerFailure());
+        }
+      } catch (e) {
+        print('❌ Repository: Unexpected error: $e, falling back to mock data');
+        // Fallback to mock data if unexpected error occurs
+        try {
+          final mockMessages = await mockDataSource.getMessages(chatId);
+          final messages = mockMessages.cast<Message>();
+          print(
+            '🔄 Repository: Using mock data as fallback - ${messages.length} messages',
+          );
+          return Right(messages);
+        } catch (mockError) {
+          print('❌ Repository: Mock data also failed: $mockError');
+          return Left(ServerFailure());
+        }
+      }
+    } else {
+      print('❌ Repository: No internet connection, using mock data');
+      try {
+        final mockMessages = await mockDataSource.getMessages(chatId);
+        final messages = mockMessages.cast<Message>();
+        print(
+          '🔄 Repository: Using mock data due to no internet - ${messages.length} messages',
+        );
+        return Right(messages);
+      } catch (mockError) {
+        print('❌ Repository: Mock data failed: $mockError');
+        return Left(NetworkFailure());
+      }
+    }
+  }
+
+  @override
+  Future<Either<Failure, Message>> sendMessage(
+    String chatId,
+    String content,
+    String type,
+  ) async {
+    if (await networkInfo.isConnected) {
+
+      try {
+        // final token = _getCurrentUserToken();
+        final token =
+            "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6InJhakBnbWFpbC5jb20iLCJzdWIiOiI2ODk0YWE2YjdmNTM1NWJmZWM1ZDU1YzUiLCJpYXQiOjE3NTQ4OTk4ODMsImV4cCI6MTc1NTMzMTg4M30.mLxLumy_yANNIZxCN3PkG4SSaMRJCMiEGxZt-whve2k";
+        if (token == null) {
+          return Left(AuthFailure());
+        }
+        chatId = "689604a2edd3b049e337f788";
+
+
+        print(
+          '🔄 Repository: Attempting to send message to chat $chatId via remote API...',
+        );
+
+        // First try to send via remote API
+        final remoteMessage = await remoteDataSource.sendMessage(
+          chatId,
+          content,
+          type,
+          token,
+        );
+        print('✅ Repository: Message sent successfully via API');
+
+        // Also send via socket service for real-time updates
+        await chatService.sendMessage(chatId, content, type);
+        print('✅ Repository: Message also sent via socket service');
+
+        return Right(remoteMessage);
+      } on ServerException {
+        print('❌ Repository: Server exception occurred');
+        return Left(ServerFailure());
+      } catch (e) {
+        print('❌ Repository: Unexpected error: $e');
+        return Left(ServerFailure());
+      }
+    } else {
+      print('❌ Repository: No internet connection');
+      return Left(NetworkFailure());
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> connectToSocket(String token) async {
+    if (await networkInfo.isConnected) {
+      try {
+        await chatService.connect(token);
+        return const Right(null);
+      } on ServerException {
+        return Left(ServerFailure());
+      }
+    } else {
+      return Left(NetworkFailure());
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> disconnectFromSocket() async {
+    try {
+      await chatService.disconnect();
+      return const Right(null);
+    } on ServerException {
+      return Left(ServerFailure());
+    }
+  }
+
+  @override
+  Stream<Message> get messageStream =>
+      chatService.messageStream.cast<Message>();
+}

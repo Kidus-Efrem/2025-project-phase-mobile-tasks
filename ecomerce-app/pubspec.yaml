@@ -34,6 +34,12 @@ dependencies:
   shared_preferences: ^2.5.3
   http: ^1.4.0
   bloc: ^8.1.0
+  flutter_bloc: ^8.1.4
+  image_picker: ^1.0.7
+  flutter_native_splash: ^2.4.6
+  google_fonts: ^6.3.0
+  socket_io_client: ^2.0.3+1
+
 
   flutter:
     sdk: flutter
@@ -46,7 +52,6 @@ dev_dependencies:
   mockito: ^5.4.4
   build_runner: ^2.4.7
   bloc_test: ^9.1.5
-
   flutter_test:
     sdk: flutter
 
@@ -72,7 +77,17 @@ flutter:
     - assets/
 
 
-
+  # Add this section AFTER flutter: assets:
+flutter_native_splash:
+  color: "#191919"  # Background color (use your brand color)
+  image: assets/splash.png  # Path to your splash image
+  android: true
+  ios: true
+  web: true
+  fill: true  # Full screen image
+  android_gravity: center
+  ios_content_mode: scaleAspectFill
+  web_cache: false
   #   - assets/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see

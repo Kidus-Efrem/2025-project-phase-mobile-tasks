@@ -1,15 +1,19 @@
 import '../../features/product/domain/entities/product.dart';
 
-class NoParams {
+abstract class UseCaseParams {
+  const UseCaseParams();
+}
+
+class NoParams extends UseCaseParams {
   const NoParams();
 }
 
-class IdParams {
+class IdParams extends UseCaseParams {
   final String id;
   const IdParams(this.id);
 }
 
-class ProductParams {
+class ProductParams extends UseCaseParams {
   final Product product;
   const ProductParams(this.product);
 }

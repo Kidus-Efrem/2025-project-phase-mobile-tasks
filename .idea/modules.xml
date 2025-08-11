@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/2025-project-phase-mobile-tasks.iml" filepath="$PROJECT_DIR$/2025-project-phase-mobile-tasks.iml" />
+      <module fileurl="file://$PROJECT_DIR$/ecomerce-app/android/app/src/debug/debug.iml" filepath="$PROJECT_DIR$/ecomerce-app/android/app/src/debug/debug.iml" />
+      <module fileurl="file://$PROJECT_DIR$/ecomerce-app/ecomerce-app.iml" filepath="$PROJECT_DIR$/ecomerce-app/ecomerce-app.iml" />
+      <module fileurl="file://$PROJECT_DIR$/ecomerce-app/android/app/src/profile/profile.iml" filepath="$PROJECT_DIR$/ecomerce-app/android/app/src/profile/profile.iml" />
+    </modules>
+  </component>
+</project>

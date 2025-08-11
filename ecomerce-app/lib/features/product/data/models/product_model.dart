@@ -1,3 +1,4 @@
+import 'dart:io';
 import '../../domain/entities/product.dart';
 
 class ProductModel extends Product {
@@ -43,5 +44,21 @@ class ProductModel extends Product {
       'price': price,
       'description': description,
     };
+  }
+
+  /// Create a ProductModel for upload with file path
+  factory ProductModel.forUpload({
+    required String name,
+    required double price,
+    required String description,
+    required String imageFilePath,
+  }) {
+    return ProductModel(
+      id: '', // Will be assigned by server
+      name: name,
+      imageUrl: imageFilePath, // Use file path for upload
+      price: price,
+      description: description,
+    );
   }
 }

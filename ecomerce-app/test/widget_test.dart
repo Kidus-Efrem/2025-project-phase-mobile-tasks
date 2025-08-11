@@ -8,12 +8,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:ecommerce_ui_replication/features/product/presentation/pages/main.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_test/flutter_test.dart';
+
+import 'package:ecommerce_ui_replication/main.dart';
 
 void main() {
   testWidgets('App should start without crashing', (WidgetTester tester) async {
     // Build our app and trigger a frame.
-    await tester.pumpWidget(const MyApp());
+    await tester.pumpWidget(const MyApp(authBloc: null));
 
     // Verify that the app starts without crashing
     expect(find.byType(MaterialApp), findsOneWidget);
