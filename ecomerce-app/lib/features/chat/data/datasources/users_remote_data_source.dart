@@ -23,7 +23,7 @@ class UsersRemoteDataSourceImpl implements UsersRemoteDataSource {
 
     try {
       final response = await client.get(
-        Uri.parse(AppConfig.apiBaseUrl),
+        Uri.parse('${AppConfig.apiBaseUrl}/users'),
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer $token',

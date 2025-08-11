@@ -344,7 +344,7 @@ class _ChatListPageState extends State<ChatListPage> with RouteAware {
                                 width: 70,
                                 child: Column(
                                   children: [
-                                  Container(
+                                    Container(
                                     padding: const EdgeInsets.all(2),
                                     decoration: BoxDecoration(
                                       shape: BoxShape.circle,
