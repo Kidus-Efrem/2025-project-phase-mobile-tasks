@@ -200,9 +200,11 @@ class _ChatListPageState extends State<ChatListPage> with RouteAware {
             if (state is UsersLoaded) {
               _users = state.users;
               print('🔍 ChatListPage - Users loaded: ${_users.length} users');
+              print(
+                  '🔍 ChatListPage - Users source: Full user list from /users endpoint');
               for (int i = 0; i < _users.length; i++) {
                 print(
-                    '🔍 ChatListPage - User $i: "${_users[i].name}" (${_users[i].email})');
+                    '🔍 ChatListPage - User $i: "${_users[i].name}" (${_users[i].email}) - ID: ${_users[i].id}');
               }
             } else if (state is ChatsLoaded) {
               _chats = state.chats;
@@ -349,84 +351,103 @@ class _ChatListPageState extends State<ChatListPage> with RouteAware {
                               }
                               final user = _users[index - 1];
                               final name = user.name;
-                              return InkWell(
-                                onTap: () {
-                                  print(
-                                      '🔍 ChatListPage - User tapped: ${user.name} (${user.id})');
-                                  print(
-                                      '🔍 ChatListPage - User ID type: ${user.id.runtimeType}');
-                                  print(
-                                      '🔍 ChatListPage - User ID value: "${user.id}"');
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
+                              return Material(
+                                color: Colors.transparent,
+                                child: InkWell(
+                                  onTap: () {
+                                    print(
+                                        '🔍 ChatListPage - User tapped: ${user.name} (${user.id})');
+                                    print(
+                                        '🔍 ChatListPage - User ID type: ${user.id.runtimeType}');
+                                    print(
+                                        '🔍 ChatListPage - User ID value: "${user.id}"');
+                                    print(
+                                        '🔍 ChatListPage - Total users loaded: ${_users.length}');
+                                    print(
+                                        '🔍 ChatListPage - User index: ${index - 1}');
+
+                                    // Show immediate feedback
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
                                         content: Text(
-                                            'Creating chat with ${user.name}...')),
-                                  );
-                                  context
-                                      .read<ChatBloc>()
-                                      .add(CreateChat(user.id));
-                                },
-                                borderRadius: BorderRadius.circular(35),
-                                child: Container(
-                                  width: 70,
-                                  height: 86,
-                                  padding:
-                                      const EdgeInsets.symmetric(vertical: 4),
-                                  child: Column(
-                                    children: [
-                                      Container(
-                                        padding: const EdgeInsets.all(2),
-                                        decoration: BoxDecoration(
-                                          shape: BoxShape.circle,
-                                          gradient: const LinearGradient(
-                                            colors: [
-                                              Colors.white,
-                                              Colors.white24
+                                            'Creating chat with ${user.name}...'),
+                                        duration: const Duration(seconds: 2),
+                                      ),
+                                    );
+
+                                    // Dispatch the create chat event
+                                    context
+                                        .read<ChatBloc>()
+                                        .add(CreateChat(user.id));
+                                  },
+                                  borderRadius: BorderRadius.circular(35),
+                                  splashColor: Colors.white.withOpacity(0.3),
+                                  highlightColor: Colors.white.withOpacity(0.1),
+                                  child: Container(
+                                    width: 70,
+                                    height: 86,
+                                    padding:
+                                        const EdgeInsets.symmetric(vertical: 4),
+                                    child: Column(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        Container(
+                                          padding: const EdgeInsets.all(2),
+                                          decoration: BoxDecoration(
+                                            shape: BoxShape.circle,
+                                            gradient: const LinearGradient(
+                                              colors: [
+                                                Colors.white,
+                                                Colors.white24
+                                              ],
+                                            ),
+                                            border: Border.all(
+                                                color: Colors.white24,
+                                                width: 1),
+                                          ),
+                                          child: Stack(
+                                            children: [
+                                              CircleAvatar(
+                                                radius: 24,
+                                                backgroundColor: Colors.white,
+                                                child: Text(
+                                                  _getInitials(name),
+                                                  style: const TextStyle(
+                                                    color: Colors.black87,
+                                                    fontWeight: FontWeight.bold,
+                                                  ),
+                                                ),
+                                              ),
+                                              Positioned(
+                                                right: 0,
+                                                bottom: 0,
+                                                child: Container(
+                                                  width: 10,
+                                                  height: 10,
+                                                  decoration: BoxDecoration(
+                                                    color: Colors.green,
+                                                    shape: BoxShape.circle,
+                                                    border: Border.all(
+                                                        color: Colors.white,
+                                                        width: 2),
+                                                  ),
+                                                ),
+                                              ),
                                             ],
                                           ),
-                                          border: Border.all(
-                                              color: Colors.white24, width: 1),
                                         ),
-                                        child: Stack(
-                                          children: [
-                                            CircleAvatar(
-                                              radius: 24,
-                                              backgroundColor: Colors.white,
-                                              child: Text(
-                                                _getInitials(name),
-                                                style: const TextStyle(
-                                                  color: Colors.black87,
-                                                  fontWeight: FontWeight.bold,
-                                                ),
-                                              ),
-                                            ),
-                                            Positioned(
-                                              right: 0,
-                                              bottom: 0,
-                                              child: Container(
-                                                width: 10,
-                                                height: 10,
-                                                decoration: BoxDecoration(
-                                                  color: Colors.green,
-                                                  shape: BoxShape.circle,
-                                                  border: Border.all(
-                                                      color: Colors.white,
-                                                      width: 2),
-                                                ),
-                                              ),
-                                            ),
-                                          ],
+                                        const SizedBox(height: 6),
+                                        Text(
+                                          name.split(' ').first,
+                                          style: const TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 12),
+                                          overflow: TextOverflow.ellipsis,
+                                          textAlign: TextAlign.center,
                                         ),
-                                      ),
-                                      const SizedBox(height: 6),
-                                      Text(
-                                        name.split(' ').first,
-                                        style: const TextStyle(
-                                            color: Colors.white, fontSize: 12),
-                                        overflow: TextOverflow.ellipsis,
-                                        textAlign: TextAlign.center,
-                                      ),
-                                    ],
+                                      ],
+                                    ),
                                   ),
                                 ),
                               );

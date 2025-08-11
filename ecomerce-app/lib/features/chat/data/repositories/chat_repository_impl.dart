@@ -159,24 +159,31 @@ class ChatRepositoryImpl implements ChatRepository {
 
   @override
   Future<Either<Failure, List<User>>> getUsers() async {
+    print('🔄 Repository: Getting users...');
+    print('🔄 Repository: Loading full user list from /users endpoint');
+
     if (await networkInfo.isConnected) {
       try {
         final token = _getCurrentUserToken();
         if (token == null) {
+          print('❌ Repository: Token is null, returning AuthFailure');
           return Left(AuthFailure());
         }
 
-        print('🔄 Repository: Attempting to load users from remote API...');
+        print('🔄 Repository: Calling usersRemoteDataSource.getUsers()');
         final userModels = await usersRemoteDataSource.getUsers(token);
         final users = userModels.cast<User>();
         print(
-          '✅ Repository: Successfully loaded ${users.length} users from API',
-        );
+            '✅ Repository: Successfully loaded ${users.length} users from /users endpoint');
+        print(
+            '✅ Repository: Users source: Full user list (not chat participants)');
+        for (int i = 0; i < users.length; i++) {
+          print(
+              '✅ Repository - User $i: "${users[i].name}" (${users[i].email}) - ID: ${users[i].id}');
+        }
         return Right(users);
       } on ServerException {
-        print(
-          '❌ Repository: Server exception occurred while loading users',
-        );
+        print('❌ Repository: Server exception occurred while loading users');
         return Left(ServerFailure());
       } catch (e) {
         print('❌ Repository: Unexpected error loading users: $e');
@@ -262,20 +269,22 @@ class ChatRepositoryImpl implements ChatRepository {
     print('🚀 Repository - Chat ID: "$chatId"');
     print('🚀 Repository - Content: "$content"');
     print('🚀 Repository - Type: "$type"');
-    
+
     if (await networkInfo.isConnected) {
       print('✅ Repository - Network is connected');
-      
+
       try {
         final token = _getCurrentUserToken();
-        print('🚀 Repository - Token retrieved: ${token != null ? "Present" : "Null"}');
-        
+        print(
+            '🚀 Repository - Token retrieved: ${token != null ? "Present" : "Null"}');
+
         if (token == null) {
           print('❌ Repository - Token is null, returning AuthFailure');
           return Left(AuthFailure());
         }
 
-        print('🔄 Repository: Sending message to chat $chatId via socket only...');
+        print(
+            '🔄 Repository: Sending message to chat $chatId via socket only...');
 
         // Send message via socket service only
         print('🚀 Repository - Calling chatService.sendMessage...');
@@ -285,8 +294,9 @@ class ChatRepositoryImpl implements ChatRepository {
         // Create a temporary message object for UI feedback
         // The real message will come back through the socket stream
         final currentUser = _getCurrentUser();
-        print('🚀 Repository - Current user: ${currentUser?.name} (ID: ${currentUser?.id})');
-        
+        print(
+            '🚀 Repository - Current user: ${currentUser?.name} (ID: ${currentUser?.id})');
+
         final tempMessage = MessageModel(
           id: DateTime.now().millisecondsSinceEpoch.toString(), // Temporary ID
           sender: currentUser ?? UserModel(id: '', name: 'You', email: ''),

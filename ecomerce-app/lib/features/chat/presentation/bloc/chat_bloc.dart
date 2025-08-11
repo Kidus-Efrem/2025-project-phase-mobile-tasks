@@ -59,11 +59,24 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
   }
 
   Future<void> _onLoadUsers(LoadUsers event, Emitter<ChatState> emit) async {
+    print('🔍 ChatBloc - _onLoadUsers called');
+    print('🔍 ChatBloc - Loading full user list from /users endpoint');
     emit(ChatLoading());
     final result = await getUsersUseCase(NoParams());
     result.fold(
-      (failure) => emit(ChatError('Failed to load users')),
-      (users) => emit(UsersLoaded(users)),
+      (failure) {
+        print('❌ ChatBloc - Failed to load users: $failure');
+        emit(ChatError('Failed to load users'));
+      },
+      (users) {
+        print('✅ ChatBloc - Users loaded successfully: ${users.length} users');
+        print('✅ ChatBloc - Users source: Full user list from /users endpoint');
+        for (int i = 0; i < users.length; i++) {
+          print(
+              '✅ ChatBloc - User $i: "${users[i].name}" (${users[i].email}) - ID: ${users[i].id}');
+        }
+        emit(UsersLoaded(users));
+      },
     );
   }
 
@@ -76,22 +89,25 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
     );
   }
 
-  Future<void> _onLoadMessages(LoadMessages event, Emitter<ChatState> emit) async {
+  Future<void> _onLoadMessages(
+      LoadMessages event, Emitter<ChatState> emit) async {
     print('🔍 ChatBloc - Loading messages for chat ID: "${event.chatId}"');
     emit(ChatLoading());
     final result = await getMessagesUseCase(event.chatId);
     result.fold(
       (failure) => emit(ChatError('Failed to load messages')),
-      (messages) => emit(MessagesLoaded(messages: messages, chatId: event.chatId)),
+      (messages) =>
+          emit(MessagesLoaded(messages: messages, chatId: event.chatId)),
     );
   }
 
-  Future<void> _onSendMessage(SendMessage event, Emitter<ChatState> emit) async {
+  Future<void> _onSendMessage(
+      SendMessage event, Emitter<ChatState> emit) async {
     print('🚀 ChatBloc - _onSendMessage called');
     print('🚀 ChatBloc - Chat ID: "${event.chatId}"');
     print('🚀 ChatBloc - Content: "${event.content}"');
     print('🚀 ChatBloc - Type: "${event.type}"');
-    
+
     try {
       print('🚀 ChatBloc - Calling sendMessageUseCase...');
       final result = await sendMessageUseCase(SendMessageParams(
@@ -99,9 +115,9 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
         content: event.content,
         type: event.type,
       ));
-      
+
       print('🚀 ChatBloc - sendMessageUseCase completed');
-      
+
       result.fold(
         (failure) {
           print('❌ ChatBloc - Send message failed: ${failure.runtimeType}');
@@ -121,7 +137,8 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
     }
   }
 
-  Future<void> _onConnectToSocket(ConnectToSocket event, Emitter<ChatState> emit) async {
+  Future<void> _onConnectToSocket(
+      ConnectToSocket event, Emitter<ChatState> emit) async {
     final result = await chatRepository.connectToSocket(event.token);
     result.fold(
       (failure) => emit(ChatError('Failed to connect to socket')),
@@ -129,7 +146,8 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
     );
   }
 
-  Future<void> _onDisconnectFromSocket(DisconnectFromSocket event, Emitter<ChatState> emit) async {
+  Future<void> _onDisconnectFromSocket(
+      DisconnectFromSocket event, Emitter<ChatState> emit) async {
     final result = await chatRepository.disconnectFromSocket();
     result.fold(
       (failure) => emit(ChatError('Failed to disconnect from socket')),
@@ -140,12 +158,13 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
   void _onMessageReceived(MessageReceived event, Emitter<ChatState> emit) {
     // Handle incoming message from socket
     print('🔍 ChatBloc - Message received from socket: ${event.messageData}');
-    
+
     // Convert the message data to a Message entity and emit MessageReceivedState
     if (event.messageData is Message) {
       emit(MessageReceivedState(event.messageData as Message));
     } else {
-      print('🔍 ChatBloc - Message data is not a Message entity: ${event.messageData.runtimeType}');
+      print(
+          '🔍 ChatBloc - Message data is not a Message entity: ${event.messageData.runtimeType}');
     }
   }
 
