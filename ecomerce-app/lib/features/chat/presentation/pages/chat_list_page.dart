@@ -347,66 +347,66 @@ class _ChatListPageState extends State<ChatListPage> with RouteAware {
                                   ],
                                 );
                               }
-                                                             final user = _users[index - 1];
-                               final name = user.name;
-                               return GestureDetector(
-                                 onTap: () {
-                                   print('🔍 ChatListPage - User tapped: ${user.name} (${user.id})');
-                                   context.read<ChatBloc>().add(CreateChat(user.id));
-                                 },
-                                 child: SizedBox(
-                                   width: 70,
-                                   child: Column(
-                                     children: [
-                                       Container(
-                                    padding: const EdgeInsets.all(2),
-                                    decoration: BoxDecoration(
-                                      shape: BoxShape.circle,
-                                      gradient: const LinearGradient(
-                                        colors: [Colors.white, Colors.white24],
+                              final user = _users[index - 1];
+                              final name = user.name;
+                              return GestureDetector(
+                                onTap: () {
+                                  print('🔍 ChatListPage - User tapped: ${user.name} (${user.id})');
+                                  context.read<ChatBloc>().add(CreateChat(user.id));
+                                },
+                                child: SizedBox(
+                                  width: 70,
+                                  child: Column(
+                                    children: [
+                                      Container(
+                                        padding: const EdgeInsets.all(2),
+                                        decoration: BoxDecoration(
+                                          shape: BoxShape.circle,
+                                          gradient: const LinearGradient(
+                                            colors: [Colors.white, Colors.white24],
+                                          ),
+                                          border: Border.all(color: Colors.white24, width: 1),
+                                        ),
+                                        child: Stack(
+                                          children: [
+                                            CircleAvatar(
+                                              radius: 24,
+                                              backgroundColor: Colors.white,
+                                              child: Text(
+                                                _getInitials(name),
+                                                style: const TextStyle(
+                                                  color: Colors.black87,
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                              ),
+                                            ),
+                                            Positioned(
+                                              right: 0,
+                                              bottom: 0,
+                                              child: Container(
+                                                width: 10,
+                                                height: 10,
+                                                decoration: BoxDecoration(
+                                                  color: Colors.green,
+                                                  shape: BoxShape.circle,
+                                                  border: Border.all(color: Colors.white, width: 2),
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
                                       ),
-                                      border: Border.all(color: Colors.white24, width: 1),
-                                    ),
-                                    child: Stack(
-                                      children: [
-                                        CircleAvatar(
-                                          radius: 24,
-                                          backgroundColor: Colors.white,
-                                          child: Text(
-                                            _getInitials(name),
-                                            style: const TextStyle(
-                                              color: Colors.black87,
-                                              fontWeight: FontWeight.bold,
-                                            ),
-                                          ),
-                                        ),
-                                        Positioned(
-                                          right: 0,
-                                          bottom: 0,
-                                          child: Container(
-                                            width: 10,
-                                            height: 10,
-                                            decoration: BoxDecoration(
-                                              color: Colors.green,
-                                              shape: BoxShape.circle,
-                                              border: Border.all(color: Colors.white, width: 2),
-                                            ),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
+                                      const SizedBox(height: 6),
+                                      Text(
+                                        name.split(' ').first,
+                                        style: const TextStyle(color: Colors.white, fontSize: 12),
+                                        overflow: TextOverflow.ellipsis,
+                                        textAlign: TextAlign.center,
+                                      ),
+                                    ],
                                   ),
-                                  const SizedBox(height: 6),
-                                  Text(
-                                    name.split(' ').first,
-                                    style: const TextStyle(color: Colors.white, fontSize: 12),
-                                    overflow: TextOverflow.ellipsis,
-                                    textAlign: TextAlign.center,
-                                  ),
-                                ],
-                              ),
-                            ),
-                          );
+                                ),
+                              );
                             },
                           ),
                         ),
