@@ -10,6 +10,9 @@ import '../datasources/chat_remote_data_source.dart';
 import '../services/chat_service.dart';
 import '../../../authentication/presentation/bloc/auth_bloc.dart';
 import '../../../authentication/presentation/bloc/auth_state.dart';
+import '../models/message_model.dart';
+import '../models/chat_model.dart';
+import '../../../authentication/data/models/user_model.dart';
 
 class ChatRepositoryImpl implements ChatRepository {
   final ChatRemoteDataSource remoteDataSource;
