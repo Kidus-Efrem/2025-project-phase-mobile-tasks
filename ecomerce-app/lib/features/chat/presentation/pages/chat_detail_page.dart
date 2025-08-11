@@ -256,7 +256,8 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
                   return const Center(
                     child: Text('No messages yet'),
                   );
-              },
+                },
+              ),
             ),
           ),
           MessageInput(
