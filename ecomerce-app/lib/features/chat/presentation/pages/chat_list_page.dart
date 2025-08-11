@@ -218,19 +218,20 @@ class _ChatListPageState extends State<ChatListPage> with RouteAware {
               print('🔍 ChatListPage - Chat object: ${state.chat}');
               print('🔍 ChatListPage - Chat user1: ${state.chat.user1.name}');
               print('🔍 ChatListPage - Chat user2: ${state.chat.user2.name}');
-              
+
               // Clear any existing snackbars
               ScaffoldMessenger.of(context).clearSnackBars();
-              
+
               // Show success message
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
-                  content: Text('Chat created successfully with ${state.chat.user2.name}!'),
+                  content: Text(
+                      'Chat created successfully with ${state.chat.user2.name}!'),
                   backgroundColor: Colors.green,
                   duration: const Duration(seconds: 2),
                 ),
               );
-              
+
               // Navigate to chat detail page
               Navigator.pushNamed(
                 context,
@@ -306,16 +307,14 @@ class _ChatListPageState extends State<ChatListPage> with RouteAware {
                         const SizedBox(height: 16),
                         Container(
                           height: 86,
-                          child: Stack(
-                            children: [
-                              ListView.separated(
-                                scrollDirection: Axis.horizontal,
-                                physics: const BouncingScrollPhysics(),
-                                padding: const EdgeInsets.symmetric(horizontal: 16),
-                                itemCount: _users.isEmpty ? 1 : _users.length + 1,
-                                separatorBuilder: (_, __) =>
-                                    const SizedBox(width: 12),
-                                itemBuilder: (context, index) {
+                          child: ListView.separated(
+                            scrollDirection: Axis.horizontal,
+                            physics: const BouncingScrollPhysics(),
+                            padding: const EdgeInsets.symmetric(horizontal: 16),
+                            itemCount: _users.isEmpty ? 1 : _users.length + 1,
+                            separatorBuilder: (_, __) =>
+                                const SizedBox(width: 12),
+                            itemBuilder: (context, index) {
                               if (index == 0) {
                                 return SizedBox(
                                   width: 70,
@@ -395,11 +394,14 @@ class _ChatListPageState extends State<ChatListPage> with RouteAware {
                                               height: 20,
                                               child: CircularProgressIndicator(
                                                 strokeWidth: 2,
-                                                valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                                                valueColor:
+                                                    AlwaysStoppedAnimation<
+                                                        Color>(Colors.white),
                                               ),
                                             ),
                                             const SizedBox(width: 12),
-                                            Text('Creating chat with ${user.name}...'),
+                                            Text(
+                                                'Creating chat with ${user.name}...'),
                                           ],
                                         ),
                                         duration: const Duration(seconds: 3),
@@ -485,21 +487,7 @@ class _ChatListPageState extends State<ChatListPage> with RouteAware {
                               );
                             },
                           ),
-                              // Add scroll indicator
-                              Positioned(
-                                right: 8,
-                                top: 0,
-                                bottom: 0,
-                                child: Container(
-                                  width: 4,
-                                  decoration: BoxDecoration(
-                                    color: Colors.white.withOpacity(0.3),
-                                    borderRadius: BorderRadius.circular(2),
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
+                        ),
                       ],
                     ),
                   ),
