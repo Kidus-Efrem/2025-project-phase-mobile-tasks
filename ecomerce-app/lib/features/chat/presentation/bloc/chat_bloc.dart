@@ -81,11 +81,20 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
   }
 
   Future<void> _onCreateChat(CreateChat event, Emitter<ChatState> emit) async {
+    print('🔍 ChatBloc - Creating chat with user ID: ${event.userId}');
     emit(ChatLoading());
     final result = await createChatUseCase(CreateChatParams(event.userId));
     result.fold(
-      (failure) => emit(ChatError('Failed to create chat')),
-      (chat) => emit(ChatCreated(chat)),
+      (failure) {
+        print('❌ ChatBloc - Failed to create chat: $failure');
+        emit(ChatError('Failed to create chat: ${failure.toString()}'));
+      },
+      (chat) {
+        print('✅ ChatBloc - Chat created successfully: ${chat.id}');
+        print(
+            '✅ ChatBloc - Chat details: User1=${chat.user1.name}, User2=${chat.user2.name}');
+        emit(ChatCreated(chat));
+      },
     );
   }
 

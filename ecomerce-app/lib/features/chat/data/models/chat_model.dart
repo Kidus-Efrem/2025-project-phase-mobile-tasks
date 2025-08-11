@@ -18,17 +18,24 @@ class ChatModel implements Chat {
   });
 
   factory ChatModel.fromJson(Map<String, dynamic> json) {
+    // Handle nested response structure - check if data is wrapped in a 'data' field
+    Map<String, dynamic> chatData = json;
+    if (json.containsKey('data') && json['data'] is Map<String, dynamic>) {
+      chatData = json['data'] as Map<String, dynamic>;
+    }
+
     // Handle both 'id' and '_id' fields, and ensure we get a valid ID
-    final String chatId = (json['id'] ?? json['_id'] ?? '').toString();
-    
+    final String chatId = (chatData['id'] ?? chatData['_id'] ?? '').toString();
+
     // Debug print to see what we're getting
     print('🔍 ChatModel.fromJson - Raw JSON: $json');
+    print('🔍 ChatModel.fromJson - Chat data: $chatData');
     print('🔍 ChatModel.fromJson - Parsed ID: "$chatId"');
-    
+
     return ChatModel(
       id: chatId,
-      user1: UserModel.fromJson(json['user1'] ?? {}),
-      user2: UserModel.fromJson(json['user2'] ?? {}),
+      user1: UserModel.fromJson(chatData['user1'] ?? {}),
+      user2: UserModel.fromJson(chatData['user2'] ?? {}),
     );
   }
 
