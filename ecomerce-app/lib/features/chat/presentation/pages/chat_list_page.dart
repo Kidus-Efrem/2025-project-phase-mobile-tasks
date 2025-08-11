@@ -6,6 +6,7 @@ import '../bloc/chat_event.dart';
 import '../bloc/chat_state.dart';
 import '../widgets/chat_list_item.dart';
 import '../../domain/entities/chat.dart';
+import '../../../authentication/domain/entities/user.dart';
 import '../../../authentication/presentation/bloc/auth_bloc.dart';
 import '../../../authentication/presentation/bloc/auth_state.dart';
 import '../../../authentication/presentation/bloc/auth_event.dart';
@@ -18,6 +19,8 @@ class ChatListPage extends StatefulWidget {
 }
 
 class _ChatListPageState extends State<ChatListPage> with RouteAware {
+  List<User> _users = [];
+  List<Chat> _chats = [];
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
@@ -25,6 +28,7 @@ class _ChatListPageState extends State<ChatListPage> with RouteAware {
     routeObserver.subscribe(this, ModalRoute.of(context)!);
     // Initial load
     context.read<ChatBloc>().add(LoadChats());
+    context.read<ChatBloc>().add(LoadUsers());
   }
 
   @override
@@ -36,8 +40,9 @@ class _ChatListPageState extends State<ChatListPage> with RouteAware {
   @override
   void didPopNext() {
     // Called when returning to this page from another page
-    print('🔄 ChatListPage - didPopNext: Reloading chats');
+    print('🔄 ChatListPage - didPopNext: Reloading chats and users');
     context.read<ChatBloc>().add(LoadChats());
+    context.read<ChatBloc>().add(LoadUsers());
   }
 
   @override
@@ -197,15 +202,20 @@ class _ChatListPageState extends State<ChatListPage> with RouteAware {
         ],
         child: BlocBuilder<ChatBloc, ChatState>(
           builder: (context, state) {
+            // Update local state based on bloc state
+            if (state is UsersLoaded) {
+              _users = state.users;
+              print('🔍 ChatListPage - Users loaded: ${_users.length} users');
+            } else if (state is ChatsLoaded) {
+              _chats = state.chats;
+              print('🔍 ChatListPage - Chats loaded: ${_chats.length} chats');
+            }
+            
             if (state is ChatLoading) {
               return const Center(
                 child: CircularProgressIndicator(),
               );
-            } else if (state is ChatsLoaded) {
-              print('🔍 ChatListPage - Chats loaded: ${state.chats.length} chats');
-              for (int i = 0; i < state.chats.length; i++) {
-                print('🔍 ChatListPage - Chat $i: ID="${state.chats[i].id}", User1="${state.chats[i].user1.name}", User2="${state.chats[i].user2.name}"');
-              }
+            } else if (_chats.isNotEmpty || _users.isNotEmpty) {
               return Column(
                 children: [
                   // Top header with search and stories/status row
@@ -267,7 +277,7 @@ class _ChatListPageState extends State<ChatListPage> with RouteAware {
                           height: 86,
                           child: ListView.separated(
                             scrollDirection: Axis.horizontal,
-                            itemCount: state.chats.isEmpty ? 1 : state.chats.length + 1,
+                            itemCount: _users.isEmpty ? 1 : _users.length + 1,
                             separatorBuilder: (_, __) => const SizedBox(width: 12),
                             itemBuilder: (context, index) {
                               // First item: "My status"
@@ -315,8 +325,8 @@ class _ChatListPageState extends State<ChatListPage> with RouteAware {
                                   ],
                                 );
                               }
-                              final chat = state.chats[index - 1];
-                              final name = _getOtherUserName(chat);
+                              final user = _users[index - 1];
+                              final name = user.name;
                               return Column(
                                 children: [
                                   Container(
@@ -377,7 +387,7 @@ class _ChatListPageState extends State<ChatListPage> with RouteAware {
                   ),
                   // Chat List
                   Expanded(
-                    child: state.chats.isEmpty
+                    child: _chats.isEmpty
                         ? const Center(
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.center,
@@ -411,9 +421,9 @@ class _ChatListPageState extends State<ChatListPage> with RouteAware {
                               context.read<ChatBloc>().add(LoadChats());
                             },
                             child: ListView.builder(
-                              itemCount: state.chats.length,
+                              itemCount: _chats.length,
                               itemBuilder: (context, index) {
-                                final chat = state.chats[index];
+                                final chat = _chats[index];
                                 return ChatListItem(
                                   chat: chat,
                                   onTap: ()  {
@@ -555,12 +565,6 @@ class _ChatListPageState extends State<ChatListPage> with RouteAware {
         );
       },
     );
-  }
-
-  // Helpers used for header items to avoid touching data/logic
-  String _getOtherUserName(Chat chat) {
-    // Placeholder until current user context is wired
-    return chat.user1.name;
   }
 
   String _getInitials(String name) {

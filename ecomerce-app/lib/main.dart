@@ -18,11 +18,13 @@ import 'features/authentication/domain/usecases/sign_up_usecase.dart';
 import 'features/authentication/presentation/bloc/auth_bloc.dart';
 import 'features/chat/data/datasources/chat_remote_data_source.dart';
 import 'features/chat/data/datasources/chat_mock_data_source.dart';
+import 'features/chat/data/datasources/users_remote_data_source.dart';
 import 'features/chat/data/repositories/chat_repository_impl.dart';
 import 'features/chat/data/services/chat_service.dart';
 import 'features/chat/domain/usecases/get_chats_usecase.dart';
 import 'features/chat/domain/usecases/get_messages_usecase.dart';
 import 'features/chat/domain/usecases/send_message_usecase.dart';
+import 'features/chat/domain/usecases/get_users_usecase.dart';
 import 'features/chat/presentation/bloc/chat_bloc.dart';
 import 'features/chat/data/services/chat_integration_service.dart';
 final RouteObserver<ModalRoute<void>> routeObserver = RouteObserver<ModalRoute<void>>();
@@ -66,10 +68,12 @@ void main() async {
 
   // Chat dependencies
   final chatRemoteDataSource = ChatRemoteDataSourceImpl(client: httpClient);
+  final usersRemoteDataSource = UsersRemoteDataSourceImpl(client: httpClient);
   final chatMockDataSource = ChatMockDataSourceImpl();
   final chatService = ChatService.instance;
   final chatRepository = ChatRepositoryImpl(
     remoteDataSource: chatRemoteDataSource,
+    usersRemoteDataSource: usersRemoteDataSource,
     mockDataSource: chatMockDataSource, // Keep for fallback if needed
     chatService: chatService,
     networkInfo: networkInfo,
@@ -80,12 +84,14 @@ void main() async {
   final getChatsUseCase = GetChatsUseCase(chatRepository);
   final getMessagesUseCase = GetMessagesUseCase(chatRepository);
   final sendMessageUseCase = SendMessageUseCase(chatRepository);
+  final getUsersUseCase = GetUsersUseCase(chatRepository);
 
   // Chat BLoC
   final chatBloc = ChatBloc(
     getChatsUseCase: getChatsUseCase,
     getMessagesUseCase: getMessagesUseCase,
     sendMessageUseCase: sendMessageUseCase,
+    getUsersUseCase: getUsersUseCase,
     chatRepository: chatRepository,
   );
 

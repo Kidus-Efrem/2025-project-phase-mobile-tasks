@@ -4,8 +4,10 @@ import '../../../../core/usecases/usecase_params.dart';
 import '../../domain/usecases/get_chats_usecase.dart';
 import '../../domain/usecases/get_messages_usecase.dart';
 import '../../domain/usecases/send_message_usecase.dart';
+import '../../domain/usecases/get_users_usecase.dart';
 import '../../domain/repositories/chat_repository.dart';
 import '../../domain/entities/message.dart';
+import '../../../authentication/domain/entities/user.dart';
 import 'chat_event.dart';
 import 'chat_state.dart';
 
@@ -13,6 +15,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
   final GetChatsUseCase getChatsUseCase;
   final GetMessagesUseCase getMessagesUseCase;
   final SendMessageUseCase sendMessageUseCase;
+  final GetUsersUseCase getUsersUseCase;
   final ChatRepository chatRepository;
   StreamSubscription<dynamic>? _messageSubscription;
 
@@ -20,9 +23,11 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
     required this.getChatsUseCase,
     required this.getMessagesUseCase,
     required this.sendMessageUseCase,
+    required this.getUsersUseCase,
     required this.chatRepository,
   }) : super(ChatInitial()) {
     on<LoadChats>(_onLoadChats);
+    on<LoadUsers>(_onLoadUsers);
     on<LoadMessages>(_onLoadMessages);
     on<SendMessage>(_onSendMessage);
     on<ConnectToSocket>(_onConnectToSocket);
@@ -46,6 +51,15 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
     result.fold(
       (failure) => emit(ChatError('Failed to load chats')),
       (chats) => emit(ChatsLoaded(chats)),
+    );
+  }
+
+  Future<void> _onLoadUsers(LoadUsers event, Emitter<ChatState> emit) async {
+    emit(ChatLoading());
+    final result = await getUsersUseCase(NoParams());
+    result.fold(
+      (failure) => emit(ChatError('Failed to load users')),
+      (users) => emit(UsersLoaded(users)),
     );
   }
 

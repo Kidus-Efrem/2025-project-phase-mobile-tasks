@@ -7,6 +7,7 @@ import '../../domain/entities/message.dart';
 import '../../domain/repositories/chat_repository.dart';
 import '../datasources/chat_mock_data_source.dart';
 import '../datasources/chat_remote_data_source.dart';
+import '../datasources/users_remote_data_source.dart';
 import '../services/chat_service.dart';
 import '../../../authentication/presentation/bloc/auth_bloc.dart';
 import '../../../authentication/presentation/bloc/auth_state.dart';
@@ -17,6 +18,7 @@ import '../../../authentication/domain/entities/user.dart';
 
 class ChatRepositoryImpl implements ChatRepository {
   final ChatRemoteDataSource remoteDataSource;
+  final UsersRemoteDataSource usersRemoteDataSource;
   final ChatMockDataSource mockDataSource;
   final ChatService chatService;
   final NetworkInfo networkInfo;
@@ -24,6 +26,7 @@ class ChatRepositoryImpl implements ChatRepository {
 
   ChatRepositoryImpl({
     required this.remoteDataSource,
+    required this.usersRemoteDataSource,
     required this.mockDataSource,
     required this.chatService,
     required this.networkInfo,
@@ -120,6 +123,37 @@ class ChatRepositoryImpl implements ChatRepository {
         print('❌ Repository: Mock data failed: $mockError');
         return Left(NetworkFailure());
       }
+    }
+  }
+
+  @override
+  Future<Either<Failure, List<User>>> getUsers() async {
+    if (await networkInfo.isConnected) {
+      try {
+        final token = _getCurrentUserToken();
+        if (token == null) {
+          return Left(AuthFailure());
+        }
+
+        print('🔄 Repository: Attempting to load users from remote API...');
+        final userModels = await usersRemoteDataSource.getUsers(token);
+        final users = userModels.cast<User>();
+        print(
+          '✅ Repository: Successfully loaded ${users.length} users from API',
+        );
+        return Right(users);
+      } on ServerException {
+        print(
+          '❌ Repository: Server exception occurred while loading users',
+        );
+        return Left(ServerFailure());
+      } catch (e) {
+        print('❌ Repository: Unexpected error loading users: $e');
+        return Left(ServerFailure());
+      }
+    } else {
+      print('❌ Repository: No internet connection, cannot load users');
+      return Left(NetworkFailure());
     }
   }
 

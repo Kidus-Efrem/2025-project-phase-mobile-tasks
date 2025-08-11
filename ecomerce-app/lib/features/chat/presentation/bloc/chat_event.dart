@@ -9,6 +9,8 @@ abstract class ChatEvent extends Equatable {
 
 class LoadChats extends ChatEvent {}
 
+class LoadUsers extends ChatEvent {}
+
 class LoadMessages extends ChatEvent {
   final String chatId;
 

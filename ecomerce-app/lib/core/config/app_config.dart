@@ -3,7 +3,7 @@ class AppConfig {
   static const bool useMockApi = false;
 
   // API Configuration
-  static const String apiBaseUrl = 'https://g5-flutter-learning-path-be-tvum.onrender.com/api/v3';
+  static const String apiBaseUrl = 'https://g5-flutter-learning-path-be-tvum.onrender.com/api/v3/users';
   static const String socketBaseUrl = 'https://g5-flutter-learning-path-be-tvum.onrender.com';
   static const Duration apiTimeout = Duration(seconds: 30);
 

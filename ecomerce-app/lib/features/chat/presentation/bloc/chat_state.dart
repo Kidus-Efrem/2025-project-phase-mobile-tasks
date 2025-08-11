@@ -1,6 +1,7 @@
 import 'package:equatable/equatable.dart';
 import '../../domain/entities/chat.dart';
 import '../../domain/entities/message.dart';
+import '../../../authentication/domain/entities/user.dart';
 
 abstract class ChatState extends Equatable {
   const ChatState();
@@ -20,6 +21,15 @@ class ChatsLoaded extends ChatState {
 
   @override
   List<Object?> get props => [chats];
+}
+
+class UsersLoaded extends ChatState {
+  final List<User> users;
+
+  const UsersLoaded(this.users);
+
+  @override
+  List<Object?> get props => [users];
 }
 
 class MessagesLoaded extends ChatState {
