@@ -7,6 +7,7 @@ import '../../domain/usecases/is_authenticated_usecase.dart';
 import '../../domain/usecases/sign_in_usecase.dart';
 import '../../domain/usecases/sign_out_usecase.dart';
 import '../../domain/usecases/sign_up_usecase.dart';
+import '../../../chat/data/services/chat_service.dart';
 import 'auth_event.dart';
 import 'auth_state.dart';
 
@@ -56,7 +57,20 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
 
     result.fold(
       (failure) => emit(AuthError(failure.toString())),
-      (user) => emit(Authenticated(user)),
+      (user) async {
+        // Connect to socket after successful sign in
+        if (user.token != null) {
+          try {
+            print('🚀 AuthBloc - Connecting to socket after sign in...');
+            await ChatService.instance.connect(user.token!);
+            print('✅ AuthBloc - Socket connected successfully');
+          } catch (e) {
+            print('❌ AuthBloc - Failed to connect to socket: $e');
+            // Don't fail the sign in if socket connection fails
+          }
+        }
+        emit(Authenticated(user));
+      },
     );
   }
 
@@ -65,6 +79,16 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     emit(AuthLoading());
 
     try {
+      // Disconnect from socket first
+      try {
+        print('🚀 AuthBloc - Disconnecting from socket...');
+        await ChatService.instance.disconnect();
+        print('✅ AuthBloc - Socket disconnected successfully');
+      } catch (e) {
+        print('❌ AuthBloc - Failed to disconnect from socket: $e');
+        // Don't fail the sign out if socket disconnection fails
+      }
+
       print('🚀 AuthBloc - Calling signOutUseCase...');
       final result = await signOutUseCase(NoParams());
 
@@ -84,7 +108,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     }
   }
 
-  Future<void> _onCheckAuthStatus(CheckAuthStatusEvent event, Emitter<AuthState> emit) async {
+  Future<void> _onCheckAuthStatus(
+      CheckAuthStatusEvent event, Emitter<AuthState> emit) async {
     emit(AuthLoading());
 
     final result = await isAuthenticatedUseCase(NoParams());
@@ -101,7 +126,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     );
   }
 
-  Future<void> _onGetCurrentUser(GetCurrentUserEvent event, Emitter<AuthState> emit) async {
+  Future<void> _onGetCurrentUser(
+      GetCurrentUserEvent event, Emitter<AuthState> emit) async {
     final result = await getCurrentUserUseCase(NoParams());
 
     result.fold(

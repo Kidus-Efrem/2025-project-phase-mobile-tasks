@@ -121,7 +121,8 @@ class _ChatListPageState extends State<ChatListPage> with RouteAware {
               onTap: () {
                 Navigator.pop(context);
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('New chat feature coming soon!')),
+                  const SnackBar(
+                      content: Text('New chat feature coming soon!')),
                 );
               },
             ),
@@ -146,7 +147,8 @@ class _ChatListPageState extends State<ChatListPage> with RouteAware {
                 context.read<AuthBloc>().add(SignOutEvent());
                 await Future.delayed(const Duration(milliseconds: 500));
                 print('🚀 ChatListPage - Navigating to sign in page');
-                Navigator.pushNamedAndRemoveUntil(context, '/signin', (route) => false);
+                Navigator.pushNamedAndRemoveUntil(
+                    context, '/signin', (route) => false);
               },
             ),
             ListTile(
@@ -175,13 +177,15 @@ class _ChatListPageState extends State<ChatListPage> with RouteAware {
           BlocListener<AuthBloc, AuthState>(
             listener: (context, state) {
               if (state is Authenticated) {
-                print('🔐 ChatListPage: User authenticated, refreshing chats and users...');
+                print(
+                    '🔐 ChatListPage: User authenticated, refreshing chats and users...');
                 context.read<ChatBloc>().add(LoadChats());
                 context.read<ChatBloc>().add(LoadUsers());
               } else if (state is Unauthenticated) {
                 print('🔐 ChatListPage: User unauthenticated');
                 if (ModalRoute.of(context)?.isCurrent ?? false) {
-                  Navigator.pushNamedAndRemoveUntil(context, '/signin', (route) => false);
+                  Navigator.pushNamedAndRemoveUntil(
+                      context, '/signin', (route) => false);
                 }
               }
             },
@@ -192,18 +196,20 @@ class _ChatListPageState extends State<ChatListPage> with RouteAware {
             print('🔍 ChatListPage - Current state: ${state.runtimeType}');
             print('🔍 ChatListPage - Local users count: ${_users.length}');
             print('🔍 ChatListPage - Local chats count: ${_chats.length}');
-            
+
             if (state is UsersLoaded) {
               _users = state.users;
               print('🔍 ChatListPage - Users loaded: ${_users.length} users');
               for (int i = 0; i < _users.length; i++) {
-                print('🔍 ChatListPage - User $i: "${_users[i].name}" (${_users[i].email})');
+                print(
+                    '🔍 ChatListPage - User $i: "${_users[i].name}" (${_users[i].email})');
               }
             } else if (state is ChatsLoaded) {
               _chats = state.chats;
               print('🔍 ChatListPage - Chats loaded: ${_chats.length} chats');
               for (int i = 0; i < _chats.length; i++) {
-                print('🔍 ChatListPage - Chat $i: ID="${_chats[i].id}", User1="${_chats[i].user1.name}", User2="${_chats[i].user2.name}"');
+                print(
+                    '🔍 ChatListPage - Chat $i: ID="${_chats[i].id}", User1="${_chats[i].user1.name}", User2="${_chats[i].user2.name}"');
               }
             } else if (state is ChatCreated) {
               print('🔍 ChatListPage - Chat created: ${state.chat.id}');
@@ -213,12 +219,16 @@ class _ChatListPageState extends State<ChatListPage> with RouteAware {
                 arguments: state.chat,
               );
             }
-            
+
             if (state is ChatLoading) {
               return const Center(
                 child: CircularProgressIndicator(),
               );
-            } else if (state is UsersLoaded || state is ChatsLoaded || state is ChatCreated || _chats.isNotEmpty || _users.isNotEmpty) {
+            } else if (state is UsersLoaded ||
+                state is ChatsLoaded ||
+                state is ChatCreated ||
+                _chats.isNotEmpty ||
+                _users.isNotEmpty) {
               return Column(
                 children: [
                   Container(
@@ -248,7 +258,8 @@ class _ChatListPageState extends State<ChatListPage> with RouteAware {
                         GestureDetector(
                           onTap: () {
                             ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(content: Text('Search feature coming soon!')),
+                              const SnackBar(
+                                  content: Text('Search feature coming soon!')),
                             );
                           },
                           child: Container(
@@ -281,7 +292,8 @@ class _ChatListPageState extends State<ChatListPage> with RouteAware {
                             physics: const BouncingScrollPhysics(),
                             padding: const EdgeInsets.symmetric(horizontal: 4),
                             itemCount: _users.isEmpty ? 1 : _users.length + 1,
-                            separatorBuilder: (_, __) => const SizedBox(width: 12),
+                            separatorBuilder: (_, __) =>
+                                const SizedBox(width: 12),
                             itemBuilder: (context, index) {
                               if (index == 0) {
                                 return SizedBox(
@@ -295,8 +307,10 @@ class _ChatListPageState extends State<ChatListPage> with RouteAware {
                                             backgroundColor: Colors.white,
                                             child: CircleAvatar(
                                               radius: 24,
-                                              backgroundColor: Colors.blue.shade50,
-                                              child: const Icon(Icons.person, color: Colors.blue),
+                                              backgroundColor:
+                                                  Colors.blue.shade50,
+                                              child: const Icon(Icons.person,
+                                                  color: Colors.blue),
                                             ),
                                           ),
                                           Positioned(
@@ -315,7 +329,9 @@ class _ChatListPageState extends State<ChatListPage> with RouteAware {
                                                   color: Colors.blue,
                                                   shape: BoxShape.circle,
                                                 ),
-                                                child: const Icon(Icons.add, size: 14, color: Colors.white),
+                                                child: const Icon(Icons.add,
+                                                    size: 14,
+                                                    color: Colors.white),
                                               ),
                                             ),
                                           ),
@@ -324,7 +340,8 @@ class _ChatListPageState extends State<ChatListPage> with RouteAware {
                                       const SizedBox(height: 6),
                                       const Text(
                                         'My status',
-                                        style: TextStyle(color: Colors.white, fontSize: 12),
+                                        style: TextStyle(
+                                            color: Colors.white, fontSize: 12),
                                       ),
                                     ],
                                   ),
@@ -332,13 +349,29 @@ class _ChatListPageState extends State<ChatListPage> with RouteAware {
                               }
                               final user = _users[index - 1];
                               final name = user.name;
-                              return GestureDetector(
+                              return InkWell(
                                 onTap: () {
-                                  print('🔍 ChatListPage - User tapped: ${user.name} (${user.id})');
-                                  context.read<ChatBloc>().add(CreateChat(user.id));
+                                  print(
+                                      '🔍 ChatListPage - User tapped: ${user.name} (${user.id})');
+                                  print(
+                                      '🔍 ChatListPage - User ID type: ${user.id.runtimeType}');
+                                  print(
+                                      '🔍 ChatListPage - User ID value: "${user.id}"');
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                        content: Text(
+                                            'Creating chat with ${user.name}...')),
+                                  );
+                                  context
+                                      .read<ChatBloc>()
+                                      .add(CreateChat(user.id));
                                 },
-                                child: SizedBox(
+                                borderRadius: BorderRadius.circular(35),
+                                child: Container(
                                   width: 70,
+                                  height: 86,
+                                  padding:
+                                      const EdgeInsets.symmetric(vertical: 4),
                                   child: Column(
                                     children: [
                                       Container(
@@ -346,9 +379,13 @@ class _ChatListPageState extends State<ChatListPage> with RouteAware {
                                         decoration: BoxDecoration(
                                           shape: BoxShape.circle,
                                           gradient: const LinearGradient(
-                                            colors: [Colors.white, Colors.white24],
+                                            colors: [
+                                              Colors.white,
+                                              Colors.white24
+                                            ],
                                           ),
-                                          border: Border.all(color: Colors.white24, width: 1),
+                                          border: Border.all(
+                                              color: Colors.white24, width: 1),
                                         ),
                                         child: Stack(
                                           children: [
@@ -372,7 +409,9 @@ class _ChatListPageState extends State<ChatListPage> with RouteAware {
                                                 decoration: BoxDecoration(
                                                   color: Colors.green,
                                                   shape: BoxShape.circle,
-                                                  border: Border.all(color: Colors.white, width: 2),
+                                                  border: Border.all(
+                                                      color: Colors.white,
+                                                      width: 2),
                                                 ),
                                               ),
                                             ),
@@ -382,7 +421,8 @@ class _ChatListPageState extends State<ChatListPage> with RouteAware {
                                       const SizedBox(height: 6),
                                       Text(
                                         name.split(' ').first,
-                                        style: const TextStyle(color: Colors.white, fontSize: 12),
+                                        style: const TextStyle(
+                                            color: Colors.white, fontSize: 12),
                                         overflow: TextOverflow.ellipsis,
                                         textAlign: TextAlign.center,
                                       ),
@@ -438,8 +478,10 @@ class _ChatListPageState extends State<ChatListPage> with RouteAware {
                                 return ChatListItem(
                                   chat: chat,
                                   onTap: () {
-                                    print('🔍 ChatListPage - Tapping chat: ${chat.id}');
-                                    print('🔍 ChatListPage - Full chat object: $chat');
+                                    print(
+                                        '🔍 ChatListPage - Tapping chat: ${chat.id}');
+                                    print(
+                                        '🔍 ChatListPage - Full chat object: $chat');
                                     Navigator.pushNamed(
                                       context,
                                       '/chat-detail',
@@ -481,7 +523,8 @@ class _ChatListPageState extends State<ChatListPage> with RouteAware {
                       child: const Text('Retry'),
                     ),
                     const SizedBox(height: 16),
-                    if (state.message.contains('AuthFailure') || state.message.contains('Unauthorized'))
+                    if (state.message.contains('AuthFailure') ||
+                        state.message.contains('Unauthorized'))
                       ElevatedButton(
                         onPressed: () {
                           Navigator.pushNamed(context, '/signin');
@@ -526,7 +569,8 @@ class _ChatListPageState extends State<ChatListPage> with RouteAware {
                 onTap: () {
                   Navigator.pop(context);
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('New chat feature coming soon!')),
+                    const SnackBar(
+                        content: Text('New chat feature coming soon!')),
                   );
                 },
               ),
@@ -549,8 +593,10 @@ class _ChatListPageState extends State<ChatListPage> with RouteAware {
                   print('🚀 ChatListPage - Dispatching SignOutEvent (dialog)');
                   context.read<AuthBloc>().add(SignOutEvent());
                   await Future.delayed(const Duration(milliseconds: 500));
-                  print('🚀 ChatListPage - Navigating to sign in page (dialog)');
-                  Navigator.pushNamedAndRemoveUntil(context, '/signin', (route) => false);
+                  print(
+                      '🚀 ChatListPage - Navigating to sign in page (dialog)');
+                  Navigator.pushNamedAndRemoveUntil(
+                      context, '/signin', (route) => false);
                 },
               ),
               ListTile(
