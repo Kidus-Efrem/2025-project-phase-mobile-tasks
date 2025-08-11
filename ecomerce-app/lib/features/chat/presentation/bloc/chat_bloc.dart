@@ -93,7 +93,17 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
         print('✅ ChatBloc - Chat created successfully: ${chat.id}');
         print(
             '✅ ChatBloc - Chat details: User1=${chat.user1.name}, User2=${chat.user2.name}');
-        emit(ChatCreated(chat));
+        print('✅ ChatBloc - Chat object: $chat');
+        print('✅ ChatBloc - Chat ID type: ${chat.id.runtimeType}');
+        print('✅ ChatBloc - Chat ID value: "${chat.id}"');
+
+        // Ensure the chat has a valid ID before emitting
+        if (chat.id.isNotEmpty) {
+          emit(ChatCreated(chat));
+        } else {
+          print('❌ ChatBloc - Chat created but ID is empty!');
+          emit(ChatError('Chat created but ID is empty'));
+        }
       },
     );
   }
