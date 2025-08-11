@@ -65,11 +65,38 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: const Color(0xFFF7F9FC),
       appBar: AppBar(
-        title: Text(_getOtherUserName()),
+        titleSpacing: 0,
+        title: Row(
+          children: [
+            CircleAvatar(
+              radius: 16,
+              backgroundColor: Colors.pink.shade100,
+              child: const Icon(Icons.person, size: 18, color: Colors.white),
+            ),
+            const SizedBox(width: 8),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(_getOtherUserName(), style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
+                const SizedBox(height: 2),
+                const Text('8 members, 5 online', style: TextStyle(fontSize: 12, color: Colors.grey)),
+              ],
+            ),
+          ],
+        ),
         backgroundColor: Colors.white,
         foregroundColor: Colors.black,
-        elevation: 0,
+        elevation: 0.5,
+        actions: const [
+          Icon(Icons.call_outlined),
+          SizedBox(width: 12),
+          Icon(Icons.videocam_outlined),
+          SizedBox(width: 12),
+          Icon(Icons.more_vert),
+          SizedBox(width: 8),
+        ],
       ),
       body: Column(
         children: [
@@ -83,7 +110,7 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
                 } else if (state is MessagesLoaded && state.chatId == widget.chat.id) {
                   return ListView.builder(
                     controller: _scrollController,
-                    padding: const EdgeInsets.all(16),
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                     itemCount: state.messages.length,
                     itemBuilder: (context, index) {
                       final message = state.messages[index];

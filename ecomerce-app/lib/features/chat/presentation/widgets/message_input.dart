@@ -12,59 +12,76 @@ class MessageInput extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withOpacity(0.1),
-            spreadRadius: 1,
-            blurRadius: 3,
-            offset: const Offset(0, -1),
-          ),
-        ],
-      ),
-      child: Row(
-        children: [
-          Expanded(
-            child: TextField(
-              controller: controller,
-              decoration: InputDecoration(
-                hintText: 'Type a message...',
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(25),
-                  borderSide: BorderSide.none,
+    return SafeArea(
+      top: false,
+      child: Container(
+        padding: const EdgeInsets.fromLTRB(12, 8, 12, 12),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.06),
+              spreadRadius: 0,
+              blurRadius: 8,
+              offset: const Offset(0, -2),
+            ),
+          ],
+        ),
+        child: Row(
+          children: [
+            Expanded(
+              child: Container(
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF5F6FA),
+                  borderRadius: BorderRadius.circular(22),
                 ),
-                filled: true,
-                fillColor: Colors.grey[100],
-                contentPadding: const EdgeInsets.symmetric(
-                  horizontal: 20,
-                  vertical: 10,
+                padding: const EdgeInsets.symmetric(horizontal: 12),
+                child: Row(
+                  children: [
+                    const Icon(Icons.emoji_emotions_outlined, color: Colors.grey),
+                    const SizedBox(width: 6),
+                    Expanded(
+                      child: TextField(
+                        controller: controller,
+                        decoration: const InputDecoration(
+                          hintText: 'Write your message',
+                          border: InputBorder.none,
+                        ),
+                        maxLines: null,
+                        textCapitalization: TextCapitalization.sentences,
+                        onSubmitted: (_) => onSend(),
+                      ),
+                    ),
+                    IconButton(
+                      onPressed: () {},
+                      icon: const Icon(Icons.attach_file, color: Colors.grey),
+                    ),
+                    IconButton(
+                      onPressed: () {},
+                      icon: const Icon(Icons.camera_alt_outlined, color: Colors.grey),
+                    ),
+                  ],
                 ),
               ),
-              maxLines: null,
-              textCapitalization: TextCapitalization.sentences,
-              onSubmitted: (_) => onSend(),
             ),
-          ),
-          const SizedBox(width: 12),
-          Container(
-            decoration: const BoxDecoration(
-              color: Colors.blue,
-              shape: BoxShape.circle,
-            ),
-            child: IconButton(
-              onPressed: onSend,
-              icon: const Icon(
-                Icons.send,
-                color: Colors.white,
-                size: 20,
+            const SizedBox(width: 8),
+            Container(
+              decoration: const BoxDecoration(
+                color: Color(0xFF4C84F3),
+                shape: BoxShape.circle,
               ),
-              padding: const EdgeInsets.all(12),
+              child: IconButton(
+                onPressed: onSend,
+                icon: const Icon(
+                  Icons.send,
+                  color: Colors.white,
+                  size: 22,
+                ),
+                padding: const EdgeInsets.all(12),
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

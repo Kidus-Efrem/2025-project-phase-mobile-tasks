@@ -158,34 +158,168 @@ class _ChatListPageState extends State<ChatListPage> {
             } else if (state is ChatsLoaded) {
               return Column(
                 children: [
-                  // Welcome Header
+                  // Top header with search and stories/status row
                   Container(
                     width: double.infinity,
-                    padding: const EdgeInsets.all(20),
-                    decoration: const BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: [Colors.blue, Colors.blueAccent],
+                    padding: const EdgeInsets.fromLTRB(16, 20, 16, 16),
+                    decoration: BoxDecoration(
+                      gradient: const LinearGradient(
+                        colors: [Color(0xFF5AA2F7), Color(0xFF4C84F3)],
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
                       ),
+                      borderRadius: const BorderRadius.only(
+                        bottomLeft: Radius.circular(24),
+                        bottomRight: Radius.circular(24),
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.05),
+                          blurRadius: 8,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text(
-                          'Welcome to Chat!',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 24,
-                            fontWeight: FontWeight.bold,
+                        // Search bar (non-functional placeholder to preserve behavior)
+                        GestureDetector(
+                          onTap: () {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(content: Text('Search feature coming soon!')),
+                            );
+                          },
+                          child: Container(
+                            height: 44,
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(24),
+                            ),
+                            padding: const EdgeInsets.symmetric(horizontal: 12),
+                            child: const Row(
+                              children: [
+                                Icon(Icons.search, color: Colors.grey),
+                                SizedBox(width: 8),
+                                Expanded(
+                                  child: Text(
+                                    'Search',
+                                    style: TextStyle(color: Colors.grey),
+                                  ),
+                                ),
+                                Icon(Icons.mic_none, color: Colors.grey),
+                              ],
+                            ),
                           ),
                         ),
-                        const SizedBox(height: 8),
-                        Text(
-                          'You have ${state.chats.length} active conversations',
-                          style: const TextStyle(
-                            color: Colors.white70,
-                            fontSize: 16,
+                        const SizedBox(height: 16),
+                        SizedBox(
+                          height: 86,
+                          child: ListView.separated(
+                            scrollDirection: Axis.horizontal,
+                            itemCount: state.chats.isEmpty ? 1 : state.chats.length + 1,
+                            separatorBuilder: (_, __) => const SizedBox(width: 12),
+                            itemBuilder: (context, index) {
+                              // First item: "My status"
+                              if (index == 0) {
+                                return Column(
+                                  children: [
+                                    Stack(
+                                      children: [
+                                        CircleAvatar(
+                                          radius: 26,
+                                          backgroundColor: Colors.white,
+                                          child: CircleAvatar(
+                                            radius: 24,
+                                            backgroundColor: Colors.blue.shade50,
+                                            child: const Icon(Icons.person, color: Colors.blue),
+                                          ),
+                                        ),
+                                        Positioned(
+                                          right: 0,
+                                          bottom: 0,
+                                          child: Container(
+                                            width: 20,
+                                            height: 20,
+                                            decoration: BoxDecoration(
+                                              color: Colors.white,
+                                              shape: BoxShape.circle,
+                                            ),
+                                            child: Container(
+                                              margin: const EdgeInsets.all(2),
+                                              decoration: const BoxDecoration(
+                                                color: Colors.blue,
+                                                shape: BoxShape.circle,
+                                              ),
+                                              child: const Icon(Icons.add, size: 14, color: Colors.white),
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    const SizedBox(height: 6),
+                                    const Text(
+                                      'My status',
+                                      style: TextStyle(color: Colors.white, fontSize: 12),
+                                    ),
+                                  ],
+                                );
+                              }
+                              final chat = state.chats[index - 1];
+                              final name = _getOtherUserName(chat);
+                              return Column(
+                                children: [
+                                  Container(
+                                    padding: const EdgeInsets.all(2),
+                                    decoration: BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      gradient: const LinearGradient(
+                                        colors: [Colors.white, Colors.white24],
+                                      ),
+                                      border: Border.all(color: Colors.white24, width: 1),
+                                    ),
+                                    child: Stack(
+                                      children: [
+                                        CircleAvatar(
+                                          radius: 24,
+                                          backgroundColor: Colors.white,
+                                          child: Text(
+                                            _getInitials(name),
+                                            style: const TextStyle(
+                                              color: Colors.black87,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                        ),
+                                        Positioned(
+                                          right: 0,
+                                          bottom: 0,
+                                          child: Container(
+                                            width: 10,
+                                            height: 10,
+                                            decoration: BoxDecoration(
+                                              color: Colors.green,
+                                              shape: BoxShape.circle,
+                                              border: Border.all(color: Colors.white, width: 2),
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  const SizedBox(height: 6),
+                                  SizedBox(
+                                    width: 60,
+                                    child: Text(
+                                      name.split(' ').first,
+                                      style: const TextStyle(color: Colors.white, fontSize: 12),
+                                      overflow: TextOverflow.ellipsis,
+                                      textAlign: TextAlign.center,
+                                    ),
+                                  ),
+                                ],
+                              );
+                            },
                           ),
                         ),
                       ],
@@ -349,5 +483,20 @@ class _ChatListPageState extends State<ChatListPage> {
         );
       },
     );
+  }
+
+  // Helpers used for header items to avoid touching data/logic
+  String _getOtherUserName(Chat chat) {
+    // Placeholder until current user context is wired
+    return chat.user1.name;
+  }
+
+  String _getInitials(String name) {
+    if (name.isEmpty) return '';
+    final names = name.split(' ');
+    if (names.length >= 2) {
+      return '${names[0][0]}${names[1][0]}'.toUpperCase();
+    }
+    return name[0].toUpperCase();
   }
 }
