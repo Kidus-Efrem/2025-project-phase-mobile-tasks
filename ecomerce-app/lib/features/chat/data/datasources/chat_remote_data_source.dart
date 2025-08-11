@@ -43,9 +43,15 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
       if (response.statusCode == 200) {
         print('✅ SUCCESS: Chats loaded successfully');
         final decoded = json.decode(response.body);
+        print('🔍 Raw decoded response: $decoded');
         final List<dynamic> jsonList = decoded['data'] ?? [];
+        print('🔍 Chat list from data: $jsonList');
         final chats = jsonList.map((json) => ChatModel.fromJson(json)).toList();
         print('📊 Loaded ${chats.length} chats');
+        // Debug: print each chat's ID
+        for (int i = 0; i < chats.length; i++) {
+          print('🔍 Chat $i ID: "${chats[i].id}"');
+        }
         return chats;
       } else if (response.statusCode == 401) {
         print('❌ ERROR: 401 - Unauthorized (Invalid or expired token)');

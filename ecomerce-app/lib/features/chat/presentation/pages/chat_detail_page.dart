@@ -30,6 +30,8 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
   @override
   void initState() {
     super.initState();
+    print('🔍 ChatDetailPage - Chat ID: "${widget.chat.id}"');
+    print('🔍 ChatDetailPage - Chat object: ${widget.chat}');
     context.read<ChatBloc>().add(LoadMessages(widget.chat.id));
   }
 

@@ -18,8 +18,15 @@ class ChatModel implements Chat {
   });
 
   factory ChatModel.fromJson(Map<String, dynamic> json) {
+    // Handle both 'id' and '_id' fields, and ensure we get a valid ID
+    final String chatId = (json['id'] ?? json['_id'] ?? '').toString();
+    
+    // Debug print to see what we're getting
+    print('🔍 ChatModel.fromJson - Raw JSON: $json');
+    print('🔍 ChatModel.fromJson - Parsed ID: "$chatId"');
+    
     return ChatModel(
-      id: json['id'] ?? '',
+      id: chatId,
       user1: UserModel.fromJson(json['user1'] ?? {}),
       user2: UserModel.fromJson(json['user2'] ?? {}),
     );

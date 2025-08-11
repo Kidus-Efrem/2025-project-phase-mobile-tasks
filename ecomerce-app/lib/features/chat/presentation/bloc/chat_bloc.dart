@@ -44,6 +44,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
   }
 
   Future<void> _onLoadMessages(LoadMessages event, Emitter<ChatState> emit) async {
+    print('🔍 ChatBloc - Loading messages for chat ID: "${event.chatId}"');
     emit(ChatLoading());
     final result = await getMessagesUseCase(event.chatId);
     result.fold(

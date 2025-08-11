@@ -170,6 +170,10 @@ class _ChatListPageState extends State<ChatListPage> {
                 child: CircularProgressIndicator(),
               );
             } else if (state is ChatsLoaded) {
+              print('🔍 ChatListPage - Chats loaded: ${state.chats.length} chats');
+              for (int i = 0; i < state.chats.length; i++) {
+                print('🔍 ChatListPage - Chat $i: ID="${state.chats[i].id}", User1="${state.chats[i].user1.name}", User2="${state.chats[i].user2.name}"');
+              }
               return Column(
                 children: [
                   // Top header with search and stories/status row
@@ -381,6 +385,9 @@ class _ChatListPageState extends State<ChatListPage> {
                                 return ChatListItem(
                                   chat: chat,
                                   onTap: () {
+                                    // Debug print to see what chat is being passed
+                                    print('🔍 ChatListPage - Tapping chat: ${chat.id}');
+                                    print('🔍 ChatListPage - Full chat object: $chat');
                                     // Navigate to chat detail page
                                     Navigator.pushNamed(
                                       context,

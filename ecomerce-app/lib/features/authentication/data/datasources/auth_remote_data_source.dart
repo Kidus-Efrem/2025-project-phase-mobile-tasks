@@ -20,7 +20,7 @@ abstract class AuthRemoteDataSource {
 class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   final http.Client client;
   // Updated base URL per provided endpoints
-  static const String baseUrl = 'https://g5-flutter-learning-path-be-tvum.onrender.com/api/v2';
+  static const String baseUrl = 'https://g5-flutter-learning-path-be-tvum.onrender.com/api/v3';
   static const Duration timeout = Duration(seconds: 30);
 
   AuthRemoteDataSourceImpl({required this.client});
