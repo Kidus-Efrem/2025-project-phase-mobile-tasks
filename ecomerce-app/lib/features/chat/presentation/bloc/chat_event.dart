@@ -11,6 +11,15 @@ class LoadChats extends ChatEvent {}
 
 class LoadUsers extends ChatEvent {}
 
+class CreateChat extends ChatEvent {
+  final String userId;
+
+  const CreateChat(this.userId);
+
+  @override
+  List<Object?> get props => [userId];
+}
+
 class LoadMessages extends ChatEvent {
   final String chatId;
 

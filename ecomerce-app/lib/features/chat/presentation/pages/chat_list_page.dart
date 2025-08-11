@@ -219,13 +219,21 @@ class _ChatListPageState extends State<ChatListPage> with RouteAware {
               for (int i = 0; i < _chats.length; i++) {
                 print('🔍 ChatListPage - Chat $i: ID="${_chats[i].id}", User1="${_chats[i].user1.name}", User2="${_chats[i].user2.name}"');
               }
+            } else if (state is ChatCreated) {
+              print('🔍 ChatListPage - Chat created: ${state.chat.id}');
+              // Navigate to chat detail page with the created chat
+              Navigator.pushNamed(
+                context,
+                '/chat-detail',
+                arguments: state.chat,
+              );
             }
             
             if (state is ChatLoading) {
               return const Center(
                 child: CircularProgressIndicator(),
               );
-            } else if (state is UsersLoaded || state is ChatsLoaded || _chats.isNotEmpty || _users.isNotEmpty) {
+            } else if (state is UsersLoaded || state is ChatsLoaded || state is ChatCreated || _chats.isNotEmpty || _users.isNotEmpty) {
               return Column(
                 children: [
                   // Top header with search and stories/status row
@@ -287,6 +295,7 @@ class _ChatListPageState extends State<ChatListPage> with RouteAware {
                           height: 86,
                           child: ListView.separated(
                             scrollDirection: Axis.horizontal,
+                            physics: const BouncingScrollPhysics(),
                             padding: const EdgeInsets.symmetric(horizontal: 4),
                             itemCount: _users.isEmpty ? 1 : _users.length + 1,
                             separatorBuilder: (_, __) => const SizedBox(width: 12),
@@ -338,13 +347,18 @@ class _ChatListPageState extends State<ChatListPage> with RouteAware {
                                   ],
                                 );
                               }
-                              final user = _users[index - 1];
-                              final name = user.name;
-                              return SizedBox(
-                                width: 70,
-                                child: Column(
-                                  children: [
-                                    Container(
+                                                             final user = _users[index - 1];
+                               final name = user.name;
+                               return GestureDetector(
+                                 onTap: () {
+                                   print('🔍 ChatListPage - User tapped: ${user.name} (${user.id})');
+                                   context.read<ChatBloc>().add(CreateChat(user.id));
+                                 },
+                                 child: SizedBox(
+                                   width: 70,
+                                   child: Column(
+                                     children: [
+                                       Container(
                                     padding: const EdgeInsets.all(2),
                                     decoration: BoxDecoration(
                                       shape: BoxShape.circle,
@@ -391,7 +405,8 @@ class _ChatListPageState extends State<ChatListPage> with RouteAware {
                                   ),
                                 ],
                               ),
-                            );
+                            ),
+                          );
                             },
                           ),
                         ),

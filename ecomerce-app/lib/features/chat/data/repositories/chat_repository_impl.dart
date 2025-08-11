@@ -127,6 +127,37 @@ class ChatRepositoryImpl implements ChatRepository {
   }
 
   @override
+  Future<Either<Failure, Chat>> createChat(String userId) async {
+    if (await networkInfo.isConnected) {
+      try {
+        final token = _getCurrentUserToken();
+        if (token == null) {
+          return Left(AuthFailure());
+        }
+
+        print('🔄 Repository: Attempting to create chat with user $userId...');
+        final chatModel = await remoteDataSource.createChat(userId, token);
+        final chat = chatModel as Chat;
+        print(
+          '✅ Repository: Successfully created chat ${chat.id} with user $userId',
+        );
+        return Right(chat);
+      } on ServerException {
+        print(
+          '❌ Repository: Server exception occurred while creating chat',
+        );
+        return Left(ServerFailure());
+      } catch (e) {
+        print('❌ Repository: Unexpected error creating chat: $e');
+        return Left(ServerFailure());
+      }
+    } else {
+      print('❌ Repository: No internet connection, cannot create chat');
+      return Left(NetworkFailure());
+    }
+  }
+
+  @override
   Future<Either<Failure, List<User>>> getUsers() async {
     if (await networkInfo.isConnected) {
       try {

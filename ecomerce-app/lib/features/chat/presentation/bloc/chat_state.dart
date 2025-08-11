@@ -32,6 +32,15 @@ class UsersLoaded extends ChatState {
   List<Object?> get props => [users];
 }
 
+class ChatCreated extends ChatState {
+  final Chat chat;
+
+  const ChatCreated(this.chat);
+
+  @override
+  List<Object?> get props => [chat];
+}
+
 class MessagesLoaded extends ChatState {
   final List<Message> messages;
   final String chatId;

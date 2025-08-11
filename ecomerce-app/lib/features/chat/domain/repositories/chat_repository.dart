@@ -8,6 +8,7 @@ abstract class ChatRepository {
   Future<Either<Failure, List<Chat>>> getChats();
   Future<Either<Failure, List<Message>>> getMessages(String chatId);
   Future<Either<Failure, Message>> sendMessage(String chatId, String content, String type);
+  Future<Either<Failure, Chat>> createChat(String userId);
   Future<Either<Failure, List<User>>> getUsers();
   Future<Either<Failure, void>> connectToSocket(String token);
   Future<Either<Failure, void>> disconnectFromSocket();

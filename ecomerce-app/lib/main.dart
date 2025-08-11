@@ -25,6 +25,7 @@ import 'features/chat/domain/usecases/get_chats_usecase.dart';
 import 'features/chat/domain/usecases/get_messages_usecase.dart';
 import 'features/chat/domain/usecases/send_message_usecase.dart';
 import 'features/chat/domain/usecases/get_users_usecase.dart';
+import 'features/chat/domain/usecases/create_chat_usecase.dart';
 import 'features/chat/presentation/bloc/chat_bloc.dart';
 import 'features/chat/data/services/chat_integration_service.dart';
 final RouteObserver<ModalRoute<void>> routeObserver = RouteObserver<ModalRoute<void>>();
@@ -85,6 +86,7 @@ void main() async {
   final getMessagesUseCase = GetMessagesUseCase(chatRepository);
   final sendMessageUseCase = SendMessageUseCase(chatRepository);
   final getUsersUseCase = GetUsersUseCase(chatRepository);
+  final createChatUseCase = CreateChatUseCase(chatRepository);
 
   // Chat BLoC
   final chatBloc = ChatBloc(
@@ -92,6 +94,7 @@ void main() async {
     getMessagesUseCase: getMessagesUseCase,
     sendMessageUseCase: sendMessageUseCase,
     getUsersUseCase: getUsersUseCase,
+    createChatUseCase: createChatUseCase,
     chatRepository: chatRepository,
   );
 
