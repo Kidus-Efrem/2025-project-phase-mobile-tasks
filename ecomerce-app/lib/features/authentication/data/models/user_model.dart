@@ -10,11 +10,22 @@ class UserModel extends User {
   });
 
   factory UserModel.fromJson(Map<String, dynamic> json) {
+    // Some APIs return user fields nested under `user` and may use `_id`.
+    final Map<String, dynamic> userMap =
+        (json['user'] is Map<String, dynamic>) ? Map<String, dynamic>.from(json['user']) : json;
+
+    final String parsedId = (userMap['id'] ?? userMap['_id'] ?? '').toString();
+    final String parsedEmail = (userMap['email'] ?? '').toString();
+    final String parsedName = (userMap['name'] ?? userMap['fullName'] ?? '').toString();
+
+    // Token can be in multiple keys or on the root json
+    final String? parsedToken = (json['token'] ?? json['accessToken'] ?? json['access_token'])?.toString();
+
     return UserModel(
-      id: json['id'] ?? '',
-      email: json['email'] ?? '',
-      name: json['name'] ?? '',
-      token: json['token'],
+      id: parsedId,
+      email: parsedEmail,
+      name: parsedName,
+      token: parsedToken,
     );
   }
 

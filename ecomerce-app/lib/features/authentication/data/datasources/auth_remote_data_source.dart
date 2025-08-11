@@ -47,7 +47,17 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       if (response.statusCode == 200 || response.statusCode == 201) {
         final jsonResponse = jsonDecode(response.body);
         final data = jsonResponse['data'] ?? jsonResponse; // fallback if no wrapper
-        return UserModel.fromJson(Map<String, dynamic>.from(data));
+        final user = UserModel.fromJson(Map<String, dynamic>.from(data));
+        // Ensure token fallback: some APIs place token at top-level
+        if (user.token == null && jsonResponse['token'] != null) {
+          return UserModel(
+            id: user.id,
+            email: user.email,
+            name: user.name,
+            token: jsonResponse['token'].toString(),
+          );
+        }
+        return user;
       } else {
         throw Exception('Failed to sign up: ${response.statusCode} - ${response.body}');
       }
@@ -90,13 +100,19 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       print("Response Body: ${response.body}");
       print("════════════════════════════════════════");
 
-      if (response.statusCode == 201) {
+      if (response.statusCode == 201 || response.statusCode == 200) {
         final jsonResponse = jsonDecode(response.body);
         // 3. Print parsed JSON before conversion
         print("Parsed JSON: $jsonResponse");
 
         final data = jsonResponse['data'] ?? jsonResponse;
-        return UserModel.fromJson(Map<String, dynamic>.from(data));
+        final user = UserModel.fromJson(Map<String, dynamic>.from(data));
+        // Ensure token fallback if present at top-level or data level
+        final token = (jsonResponse['token'] ?? data['token'] ?? data['accessToken'] ?? data['access_token'])?.toString();
+        if (user.token == null && token != null) {
+          return UserModel(id: user.id, email: user.email, name: user.name, token: token);
+        }
+        return user;
       } else {
         // 4. Explicit error logging
         print("❗ SIGNIN ERROR: ${response.statusCode} - ${response.body}");
