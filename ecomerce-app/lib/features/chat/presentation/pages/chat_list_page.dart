@@ -123,6 +123,8 @@ class _ChatListPageState extends State<ChatListPage> {
               onTap: () {
                 Navigator.pop(context);
                 context.read<AuthBloc>().add(SignOutEvent());
+                // Navigate to sign in immediately after triggering sign out
+                Navigator.pushNamedAndRemoveUntil(context, '/signin', (route) => false);
               },
             ),
             ListTile(
@@ -488,6 +490,8 @@ class _ChatListPageState extends State<ChatListPage> {
                 onTap: () {
                   Navigator.pop(context);
                   context.read<AuthBloc>().add(SignOutEvent());
+                  // Navigate to sign in immediately after triggering sign out
+                  Navigator.pushNamedAndRemoveUntil(context, '/signin', (route) => false);
                 },
               ),
               ListTile(

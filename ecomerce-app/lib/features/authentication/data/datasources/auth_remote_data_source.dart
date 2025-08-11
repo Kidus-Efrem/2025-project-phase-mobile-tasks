@@ -49,12 +49,13 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
         final data = jsonResponse['data'] ?? jsonResponse; // fallback if no wrapper
         final user = UserModel.fromJson(Map<String, dynamic>.from(data));
         // Ensure token fallback: some APIs place token at top-level
-        if (user.token == null && jsonResponse['token'] != null) {
+        final token = (jsonResponse['access_token'] ?? jsonResponse['accessToken'] ?? jsonResponse['token'])?.toString();
+        if (user.token == null && token != null) {
           return UserModel(
             id: user.id,
             email: user.email,
             name: user.name,
-            token: jsonResponse['token'].toString(),
+            token: token,
           );
         }
         return user;
@@ -108,7 +109,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
         final data = jsonResponse['data'] ?? jsonResponse;
         final user = UserModel.fromJson(Map<String, dynamic>.from(data));
         // Ensure token fallback if present at top-level or data level
-        final token = (jsonResponse['token'] ?? data['token'] ?? data['accessToken'] ?? data['access_token'])?.toString();
+        final token = (jsonResponse['access_token'] ?? jsonResponse['accessToken'] ?? jsonResponse['token'] ?? data['access_token'] ?? data['accessToken'] ?? data['token'])?.toString();
         if (user.token == null && token != null) {
           return UserModel(id: user.id, email: user.email, name: user.name, token: token);
         }

@@ -18,8 +18,8 @@ class UserModel extends User {
     final String parsedEmail = (userMap['email'] ?? '').toString();
     final String parsedName = (userMap['name'] ?? userMap['fullName'] ?? '').toString();
 
-    // Token can be in multiple keys or on the root json
-    final String? parsedToken = (json['token'] ?? json['accessToken'] ?? json['access_token'])?.toString();
+    // Token can be in multiple keys or on the root json - prioritize access_token
+    final String? parsedToken = (json['access_token'] ?? json['accessToken'] ?? json['token'])?.toString();
 
     return UserModel(
       id: parsedId,
