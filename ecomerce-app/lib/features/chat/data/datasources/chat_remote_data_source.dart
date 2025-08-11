@@ -7,7 +7,8 @@ import '../models/message_model.dart';
 abstract class ChatRemoteDataSource {
   Future<List<ChatModel>> getChats(String token);
   Future<List<MessageModel>> getMessages(String chatId, String token);
-  Future<MessageModel> sendMessage(String chatId, String content, String type, String token);
+  Future<MessageModel> sendMessage(
+      String chatId, String content, String type, String token);
   Future<ChatModel> createChat(String userId, String token);
 }
 
@@ -22,7 +23,8 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
     print('📱 GET CHATS REQUEST');
     print('════════════════════════════════════════');
     print('URL: ${AppConfig.apiBaseUrl}/chats');
-    print('Headers: {\'Content-Type\': \'application/json\', \'Authorization\': \'Bearer $token\'}');
+    print(
+        'Headers: {\'Content-Type\': \'application/json\', \'Authorization\': \'Bearer $token\'}');
     print('════════════════════════════════════════');
 
     try {
@@ -68,21 +70,26 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
         throw Exception('Internal Server Error: Server is experiencing issues');
       } else if (response.statusCode >= 400 && response.statusCode < 500) {
         print('❌ ERROR: ${response.statusCode} - Client Error');
-        throw Exception('Client Error ${response.statusCode}: ${response.body}');
+        throw Exception(
+            'Client Error ${response.statusCode}: ${response.body}');
       } else if (response.statusCode >= 500) {
         print('❌ ERROR: ${response.statusCode} - Server Error');
-        throw Exception('Server Error ${response.statusCode}: ${response.body}');
+        throw Exception(
+            'Server Error ${response.statusCode}: ${response.body}');
       } else {
         print('❌ ERROR: Unexpected status code ${response.statusCode}');
-        throw Exception('Failed to load chats: Unexpected status code ${response.statusCode}');
+        throw Exception(
+            'Failed to load chats: Unexpected status code ${response.statusCode}');
       }
     } catch (e) {
       if (e.toString().contains('TimeoutException')) {
-        print('❌ ERROR: Request timeout after ${AppConfig.apiTimeout.inSeconds} seconds');
+        print(
+            '❌ ERROR: Request timeout after ${AppConfig.apiTimeout.inSeconds} seconds');
         throw Exception('Request timeout: Server is not responding');
       } else if (e.toString().contains('SocketException')) {
         print('❌ ERROR: Network connection failed');
-        throw Exception('Network connection failed: Please check your internet connection');
+        throw Exception(
+            'Network connection failed: Please check your internet connection');
       } else {
         print('❌ ERROR: Unexpected error: $e');
         throw Exception('Failed to load chats: $e');
@@ -98,7 +105,8 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
     print('════════════════════════════════════════');
     print('URL: ${AppConfig.apiBaseUrl}/chats/$chatId/messages');
     print('Chat ID: $chatId');
-    print('Headers: {\'Content-Type\': \'application/json\', \'Authorization\': \'Bearer $token\'}');
+    print(
+        'Headers: {\'Content-Type\': \'application/json\', \'Authorization\': \'Bearer $token\'}');
     print('════════════════════════════════════════');
 
     try {
@@ -120,12 +128,13 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
       if (response.statusCode == 200) {
         print('✅ SUCCESS: Messages loaded successfully for chat $chatId');
 
-       final decoded = json.decode(response.body);
+        final decoded = json.decode(response.body);
         final List<dynamic> jsonList = decoded['data'] ?? [];
         // final chats = jsonList.map((json) => ChatModel.fromJson(json)).toList();
 
         // final List<dynamic> jsonList = json.decode(response.body);
-        final messages = jsonList.map((json) => MessageModel.fromJson(json)).toList();
+        final messages =
+            jsonList.map((json) => MessageModel.fromJson(json)).toList();
         print('📊 Loaded ${messages.length} messages');
         return messages;
       } else if (response.statusCode == 401) {
@@ -142,21 +151,26 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
         throw Exception('Internal Server Error: Server is experiencing issues');
       } else if (response.statusCode >= 400 && response.statusCode < 500) {
         print('❌ ERROR: ${response.statusCode} - Client Error');
-        throw Exception('Client Error ${response.statusCode}: ${response.body}');
+        throw Exception(
+            'Client Error ${response.statusCode}: ${response.body}');
       } else if (response.statusCode >= 500) {
         print('❌ ERROR: ${response.statusCode} - Server Error');
-        throw Exception('Server Error ${response.statusCode}: ${response.body}');
+        throw Exception(
+            'Server Error ${response.statusCode}: ${response.body}');
       } else {
         print('❌ ERROR: Unexpected status code ${response.statusCode}');
-        throw Exception('Failed to load messages: Unexpected status code ${response.statusCode}');
+        throw Exception(
+            'Failed to load messages: Unexpected status code ${response.statusCode}');
       }
     } catch (e) {
       if (e.toString().contains('TimeoutException')) {
-        print('❌ ERROR: Request timeout after ${AppConfig.apiTimeout.inSeconds} seconds');
+        print(
+            '❌ ERROR: Request timeout after ${AppConfig.apiTimeout.inSeconds} seconds');
         throw Exception('Request timeout: Server is not responding');
       } else if (e.toString().contains('SocketException')) {
         print('❌ ERROR: Network connection failed');
-        throw Exception('Network connection failed: Please check your internet connection');
+        throw Exception(
+            'Network connection failed: Please check your internet connection');
       } else {
         print('❌ ERROR: Unexpected error: $e');
         throw Exception('Failed to load messages: $e');
@@ -171,20 +185,23 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
     print('════════════════════════════════════════');
     print('URL: ${AppConfig.apiBaseUrl}/chats');
     print('User ID: $userId');
-    print('Headers: {\'Content-Type\': \'application/json\', \'Authorization\': \'Bearer $token\'}');
+    print(
+        'Headers: {\'Content-Type\': \'application/json\', \'Authorization\': \'Bearer $token\'}');
     print('════════════════════════════════════════');
 
     try {
-      final response = await client.post(
-        Uri.parse('${AppConfig.apiBaseUrl}/chats'),
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer $token',
-        },
-        body: json.encode({
-          'user_id': userId,
-        }),
-      ).timeout(AppConfig.apiTimeout);
+      final response = await client
+          .post(
+            Uri.parse('${AppConfig.apiBaseUrl}/chats'),
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': 'Bearer $token',
+            },
+            body: json.encode({
+              'userId': userId,
+            }),
+          )
+          .timeout(AppConfig.apiTimeout);
 
       print('════════════════════════════════════════');
       print('📱 CREATE CHAT RESPONSE');
@@ -213,27 +230,33 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
         throw Exception('User not found: The specified user does not exist');
       } else if (response.statusCode == 409) {
         print('❌ ERROR: 409 - Chat already exists');
-        throw Exception('Chat already exists: A chat with this user already exists');
+        throw Exception(
+            'Chat already exists: A chat with this user already exists');
       } else if (response.statusCode == 500) {
         print('❌ ERROR: 500 - Internal Server Error');
         throw Exception('Internal Server Error: Server is experiencing issues');
       } else if (response.statusCode >= 400 && response.statusCode < 500) {
         print('❌ ERROR: ${response.statusCode} - Client Error');
-        throw Exception('Client Error ${response.statusCode}: ${response.body}');
+        throw Exception(
+            'Client Error ${response.statusCode}: ${response.body}');
       } else if (response.statusCode >= 500) {
         print('❌ ERROR: ${response.statusCode} - Server Error');
-        throw Exception('Server Error ${response.statusCode}: ${response.body}');
+        throw Exception(
+            'Server Error ${response.statusCode}: ${response.body}');
       } else {
         print('❌ ERROR: Unexpected status code ${response.statusCode}');
-        throw Exception('Failed to create chat: Unexpected status code ${response.statusCode}');
+        throw Exception(
+            'Failed to create chat: Unexpected status code ${response.statusCode}');
       }
     } catch (e) {
       if (e.toString().contains('TimeoutException')) {
-        print('❌ ERROR: Request timeout after ${AppConfig.apiTimeout.inSeconds} seconds');
+        print(
+            '❌ ERROR: Request timeout after ${AppConfig.apiTimeout.inSeconds} seconds');
         throw Exception('Request timeout: Server is not responding');
       } else if (e.toString().contains('SocketException')) {
         print('❌ ERROR: Network connection failed');
-        throw Exception('Network connection failed: Please check your internet connection');
+        throw Exception(
+            'Network connection failed: Please check your internet connection');
       } else {
         print('❌ ERROR: Unexpected error: $e');
         throw Exception('Failed to create chat: $e');
@@ -242,7 +265,8 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
   }
 
   @override
-  Future<MessageModel> sendMessage(String chatId, String content, String type, String token) async {
+  Future<MessageModel> sendMessage(
+      String chatId, String content, String type, String token) async {
     print('════════════════════════════════════════');
     print('📤 SEND MESSAGE REQUEST');
     print('════════════════════════════════════════');
@@ -250,21 +274,24 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
     print('Chat ID: $chatId');
     print('Content: $content');
     print('Type: $type');
-    print('Headers: {\'Content-Type\': \'application/json\', \'Authorization\': \'Bearer $token\'}');
+    print(
+        'Headers: {\'Content-Type\': \'application/json\', \'Authorization\': \'Bearer $token\'}');
     print('════════════════════════════════════════');
 
     try {
-      final response = await client.post(
-        Uri.parse('${AppConfig.apiBaseUrl}/chats/$chatId/messages'),
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer $token',
-        },
-        body: json.encode({
-          'content': content,
-          'type': type,
-        }),
-      ).timeout(AppConfig.apiTimeout);
+      final response = await client
+          .post(
+            Uri.parse('${AppConfig.apiBaseUrl}/chats/$chatId/messages'),
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': 'Bearer $token',
+            },
+            body: json.encode({
+              'content': content,
+              'type': type,
+            }),
+          )
+          .timeout(AppConfig.apiTimeout);
 
       print('════════════════════════════════════════');
       print('📤 SEND MESSAGE RESPONSE');
@@ -296,21 +323,26 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
         throw Exception('Internal Server Error: Server is experiencing issues');
       } else if (response.statusCode >= 400 && response.statusCode < 500) {
         print('❌ ERROR: ${response.statusCode} - Client Error');
-        throw Exception('Client Error ${response.statusCode}: ${response.body}');
+        throw Exception(
+            'Client Error ${response.statusCode}: ${response.body}');
       } else if (response.statusCode >= 500) {
         print('❌ ERROR: ${response.statusCode} - Server Error');
-        throw Exception('Server Error ${response.statusCode}: ${response.body}');
+        throw Exception(
+            'Server Error ${response.statusCode}: ${response.body}');
       } else {
         print('❌ ERROR: Unexpected status code ${response.statusCode}');
-        throw Exception('Failed to send message: Unexpected status code ${response.statusCode}');
+        throw Exception(
+            'Failed to send message: Unexpected status code ${response.statusCode}');
       }
     } catch (e) {
       if (e.toString().contains('TimeoutException')) {
-        print('❌ ERROR: Request timeout after ${AppConfig.apiTimeout.inSeconds} seconds');
+        print(
+            '❌ ERROR: Request timeout after ${AppConfig.apiTimeout.inSeconds} seconds');
         throw Exception('Request timeout: Server is not responding');
       } else if (e.toString().contains('SocketException')) {
         print('❌ ERROR: Network connection failed');
-        throw Exception('Network connection failed: Please check your internet connection');
+        throw Exception(
+            'Network connection failed: Please check your internet connection');
       } else {
         print('❌ ERROR: Unexpected error: $e');
         throw Exception('Failed to send message: $e');

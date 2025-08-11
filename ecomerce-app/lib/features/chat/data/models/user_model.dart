@@ -10,10 +10,15 @@ class UserModel extends User {
   });
 
   factory UserModel.fromJson(Map<String, dynamic> json) {
+    // Handle both 'id' and '_id' fields like the authentication model
+    final String parsedId = (json['id'] ?? json['_id'] ?? '').toString();
+    final String parsedEmail = (json['email'] ?? '').toString();
+    final String parsedName = (json['name'] ?? json['fullName'] ?? '').toString();
+    
     return UserModel(
-      id: json['id'] ?? '',
-      email: json['email'] ?? '',
-      name: json['name'] ?? '',
+      id: parsedId,
+      email: parsedEmail,
+      name: parsedName,
       token: json['token'],
     );
   }
