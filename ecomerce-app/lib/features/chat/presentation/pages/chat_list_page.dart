@@ -21,11 +21,28 @@ class ChatListPage extends StatefulWidget {
 class _ChatListPageState extends State<ChatListPage> with RouteAware {
   List<User> _users = [];
   List<Chat> _chats = [];
+  bool _isInitialized = false;
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
     routeObserver.subscribe(this, ModalRoute.of(context)!);
+
+    // Check authentication state first
+    final authState = context.read<AuthBloc>().state;
+    if (authState is Authenticated && !_isInitialized) {
+      print('🔍 ChatListPage - User is authenticated, loading data...');
+      _loadData();
+      _isInitialized = true;
+    } else if (authState is Unauthenticated) {
+      print(
+          '🔍 ChatListPage - User is not authenticated, redirecting to sign in...');
+      Navigator.pushNamedAndRemoveUntil(context, '/signin', (route) => false);
+    }
+  }
+
+  void _loadData() {
+    print('🔍 ChatListPage - Loading chats and users...');
     context.read<ChatBloc>().add(LoadChats());
     context.read<ChatBloc>().add(LoadUsers());
   }
@@ -39,8 +56,7 @@ class _ChatListPageState extends State<ChatListPage> with RouteAware {
   @override
   void didPopNext() {
     print('🔄 ChatListPage - didPopNext: Reloading chats and users');
-    context.read<ChatBloc>().add(LoadChats());
-    context.read<ChatBloc>().add(LoadUsers());
+    _loadData();
   }
 
   @override
@@ -179,8 +195,7 @@ class _ChatListPageState extends State<ChatListPage> with RouteAware {
               if (state is Authenticated) {
                 print(
                     '🔐 ChatListPage: User authenticated, refreshing chats and users...');
-                context.read<ChatBloc>().add(LoadChats());
-                context.read<ChatBloc>().add(LoadUsers());
+                _loadData();
               } else if (state is Unauthenticated) {
                 print('🔐 ChatListPage: User unauthenticated');
                 if (ModalRoute.of(context)?.isCurrent ?? false) {
@@ -555,8 +570,7 @@ class _ChatListPageState extends State<ChatListPage> with RouteAware {
                           )
                         : RefreshIndicator(
                             onRefresh: () async {
-                              context.read<ChatBloc>().add(LoadChats());
-                              context.read<ChatBloc>().add(LoadUsers());
+                              _loadData();
                             },
                             child: ListView.builder(
                               itemCount: _chats.length,
@@ -604,8 +618,7 @@ class _ChatListPageState extends State<ChatListPage> with RouteAware {
                     const SizedBox(height: 16),
                     ElevatedButton(
                       onPressed: () {
-                        context.read<ChatBloc>().add(LoadChats());
-                        context.read<ChatBloc>().add(LoadUsers());
+                        _loadData();
                       },
                       child: const Text('Retry'),
                     ),
@@ -626,8 +639,23 @@ class _ChatListPageState extends State<ChatListPage> with RouteAware {
                 ),
               );
             }
+
+            // Show loading state if no data is available yet
             return const Center(
-              child: Text('No chats available'),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  CircularProgressIndicator(),
+                  SizedBox(height: 16),
+                  Text(
+                    'Loading chats and users...',
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: Colors.grey,
+                    ),
+                  ),
+                ],
+              ),
             );
           },
         ),
