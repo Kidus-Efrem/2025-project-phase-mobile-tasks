@@ -182,7 +182,7 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
           'Authorization': 'Bearer $token',
         },
         body: json.encode({
-          'userId': userId,
+          'user_id': userId,
         }),
       ).timeout(AppConfig.apiTimeout);
 
