@@ -117,6 +117,14 @@ class _ChatListPageState extends State<ChatListPage> {
               },
             ),
             ListTile(
+              leading: const Icon(Icons.logout),
+              title: const Text('Sign out'),
+              onTap: () {
+                Navigator.pop(context);
+                context.read<AuthBloc>().add(SignOutEvent());
+              },
+            ),
+            ListTile(
               leading: const Icon(Icons.login),
               title: const Text('Authentication'),
               onTap: () {
@@ -144,7 +152,10 @@ class _ChatListPageState extends State<ChatListPage> {
                 context.read<ChatBloc>().add(LoadChats());
               } else if (state is Unauthenticated) {
                 print('🔐 ChatListPage: User unauthenticated');
-                // Optionally show a message or redirect
+                // Navigate to sign in when user logs out
+                if (ModalRoute.of(context)?.isCurrent ?? false) {
+                  Navigator.pushNamedAndRemoveUntil(context, '/signin', (route) => false);
+                }
               }
             },
           ),
@@ -468,6 +479,14 @@ class _ChatListPageState extends State<ChatListPage> {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(content: Text('Settings coming soon!')),
                   );
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.logout),
+                title: const Text('Sign out'),
+                onTap: () {
+                  Navigator.pop(context);
+                  context.read<AuthBloc>().add(SignOutEvent());
                 },
               ),
               ListTile(
