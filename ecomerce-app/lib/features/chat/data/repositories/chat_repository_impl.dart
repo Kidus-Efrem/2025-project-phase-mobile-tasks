@@ -193,22 +193,35 @@ class ChatRepositoryImpl implements ChatRepository {
     String content,
     String type,
   ) async {
+    print('🚀 Repository - sendMessage called');
+    print('🚀 Repository - Chat ID: "$chatId"');
+    print('🚀 Repository - Content: "$content"');
+    print('🚀 Repository - Type: "$type"');
+    
     if (await networkInfo.isConnected) {
+      print('✅ Repository - Network is connected');
+      
       try {
         final token = _getCurrentUserToken();
+        print('🚀 Repository - Token retrieved: ${token != null ? "Present" : "Null"}');
+        
         if (token == null) {
+          print('❌ Repository - Token is null, returning AuthFailure');
           return Left(AuthFailure());
         }
 
         print('🔄 Repository: Sending message to chat $chatId via socket only...');
 
         // Send message via socket service only
+        print('🚀 Repository - Calling chatService.sendMessage...');
         await chatService.sendMessage(chatId, content, type);
         print('✅ Repository: Message sent successfully via socket');
 
         // Create a temporary message object for UI feedback
         // The real message will come back through the socket stream
         final currentUser = _getCurrentUser();
+        print('🚀 Repository - Current user: ${currentUser?.name} (ID: ${currentUser?.id})');
+        
         final tempMessage = MessageModel(
           id: DateTime.now().millisecondsSinceEpoch.toString(), // Temporary ID
           sender: currentUser ?? UserModel(id: '', name: 'You', email: ''),
@@ -222,9 +235,12 @@ class ChatRepositoryImpl implements ChatRepository {
           createdAt: DateTime.now(),
         );
 
+        print('✅ Repository - Created temp message with ID: ${tempMessage.id}');
+        print('✅ Repository - Returning success with temp message');
         return Right(tempMessage);
       } catch (e) {
         print('❌ Repository: Socket send error: $e');
+        print('❌ Repository: Error type: ${e.runtimeType}');
         return Left(ServerFailure());
       }
     } else {

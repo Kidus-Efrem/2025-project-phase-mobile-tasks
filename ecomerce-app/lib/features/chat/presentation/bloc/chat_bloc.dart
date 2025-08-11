@@ -5,6 +5,7 @@ import '../../domain/usecases/get_chats_usecase.dart';
 import '../../domain/usecases/get_messages_usecase.dart';
 import '../../domain/usecases/send_message_usecase.dart';
 import '../../domain/repositories/chat_repository.dart';
+import '../../domain/entities/message.dart';
 import 'chat_event.dart';
 import 'chat_state.dart';
 
@@ -29,9 +30,14 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
     on<MessageReceived>(_onMessageReceived);
 
     // Listen to incoming messages
+    print('🚀 ChatBloc - Setting up message stream listener...');
     _messageSubscription = chatRepository.messageStream.listen((message) {
+      print('🚀 ChatBloc - Message received from stream: ${message.content}');
+      print('🚀 ChatBloc - Message ID: ${message.id}');
+      print('🚀 ChatBloc - Message sender: ${message.sender.name}');
       add(MessageReceived(message));
     });
+    print('✅ ChatBloc - Message stream listener setup completed');
   }
 
   Future<void> _onLoadChats(LoadChats event, Emitter<ChatState> emit) async {
@@ -54,15 +60,38 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
   }
 
   Future<void> _onSendMessage(SendMessage event, Emitter<ChatState> emit) async {
-    final result = await sendMessageUseCase(SendMessageParams(
-      chatId: event.chatId,
-      content: event.content,
-      type: event.type,
-    ));
-    result.fold(
-      (failure) => emit(ChatError('Failed to send message')),
-      (message) => emit(MessageSent(message)),
-    );
+    print('🚀 ChatBloc - _onSendMessage called');
+    print('🚀 ChatBloc - Chat ID: "${event.chatId}"');
+    print('🚀 ChatBloc - Content: "${event.content}"');
+    print('🚀 ChatBloc - Type: "${event.type}"');
+    
+    try {
+      print('🚀 ChatBloc - Calling sendMessageUseCase...');
+      final result = await sendMessageUseCase(SendMessageParams(
+        chatId: event.chatId,
+        content: event.content,
+        type: event.type,
+      ));
+      
+      print('🚀 ChatBloc - sendMessageUseCase completed');
+      
+      result.fold(
+        (failure) {
+          print('❌ ChatBloc - Send message failed: ${failure.runtimeType}');
+          print('❌ ChatBloc - Failure details: $failure');
+          emit(ChatError('Failed to send message: ${failure.toString()}'));
+        },
+        (message) {
+          print('✅ ChatBloc - Message sent successfully');
+          print('✅ ChatBloc - Sent message ID: ${message.id}');
+          print('✅ ChatBloc - Sent message content: "${message.content}"');
+          emit(MessageSent(message));
+        },
+      );
+    } catch (e) {
+      print('❌ ChatBloc - Exception in _onSendMessage: $e');
+      emit(ChatError('Exception sending message: $e'));
+    }
   }
 
   Future<void> _onConnectToSocket(ConnectToSocket event, Emitter<ChatState> emit) async {
@@ -82,9 +111,15 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
   }
 
   void _onMessageReceived(MessageReceived event, Emitter<ChatState> emit) {
-    // Handle incoming message - you might want to update the current chat
-    // or show a notification
-    print('Message received: ${event.messageData}');
+    // Handle incoming message from socket
+    print('🔍 ChatBloc - Message received from socket: ${event.messageData}');
+    
+    // Convert the message data to a Message entity and emit MessageReceived state
+    if (event.messageData is Message) {
+      emit(MessageReceived(event.messageData as Message));
+    } else {
+      print('🔍 ChatBloc - Message data is not a Message entity: ${event.messageData.runtimeType}');
+    }
   }
 
   @override

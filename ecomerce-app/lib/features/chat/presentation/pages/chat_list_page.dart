@@ -141,10 +141,19 @@ class _ChatListPageState extends State<ChatListPage> with RouteAware {
             ListTile(
               leading: const Icon(Icons.logout),
               title: const Text('Sign out'),
-              onTap: () {
+              onTap: () async {
+                print('🚀 ChatListPage - Sign out button tapped');
                 Navigator.pop(context);
+                
+                // Trigger sign out event
+                print('🚀 ChatListPage - Dispatching SignOutEvent');
                 context.read<AuthBloc>().add(SignOutEvent());
-                // Navigate to sign in immediately after triggering sign out
+                
+                // Wait a bit for the sign out to complete
+                await Future.delayed(const Duration(milliseconds: 500));
+                
+                print('🚀 ChatListPage - Navigating to sign in page');
+                // Navigate to sign in and clear all routes
                 Navigator.pushNamedAndRemoveUntil(context, '/signin', (route) => false);
               },
             ),
@@ -160,7 +169,9 @@ class _ChatListPageState extends State<ChatListPage> with RouteAware {
               leading: const Icon(Icons.home),
               title: const Text('Product Home'),
               onTap: () {
+                print('🚀 ChatListPage - Product Home button tapped');
                 Navigator.pop(context);
+                print('🚀 ChatListPage - Navigating to /home route');
                 Navigator.pushNamed(context, '/home');
               },
             ),
@@ -515,10 +526,19 @@ class _ChatListPageState extends State<ChatListPage> with RouteAware {
               ListTile(
                 leading: const Icon(Icons.logout),
                 title: const Text('Sign out'),
-                onTap: () {
+                onTap: () async {
+                  print('🚀 ChatListPage - Sign out button tapped (dialog)');
                   Navigator.pop(context);
+                  
+                  // Trigger sign out event
+                  print('🚀 ChatListPage - Dispatching SignOutEvent (dialog)');
                   context.read<AuthBloc>().add(SignOutEvent());
-                  // Navigate to sign in immediately after triggering sign out
+                  
+                  // Wait a bit for the sign out to complete
+                  await Future.delayed(const Duration(milliseconds: 500));
+                  
+                  print('🚀 ChatListPage - Navigating to sign in page (dialog)');
+                  // Navigate to sign in and clear all routes
                   Navigator.pushNamedAndRemoveUntil(context, '/signin', (route) => false);
                 },
               ),

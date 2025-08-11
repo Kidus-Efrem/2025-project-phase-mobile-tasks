@@ -20,7 +20,9 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
+    print('🚀 HomePage - initState called');
     products = List.from(initialProducts);
+    print('🚀 HomePage - Loaded ${products.length} products');
   }
 
   void goToAddProductPage(BuildContext context) async {
@@ -149,6 +151,7 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
+    print('🚀 HomePage - build method called');
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(

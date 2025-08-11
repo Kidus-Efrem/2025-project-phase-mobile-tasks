@@ -15,31 +15,44 @@ import '../../features/chat/presentation/pages/chat_detail_page.dart';
 
 class AppRouter {
   static Route<dynamic> generateRoute(RouteSettings settings) {
+    print('🚀 AppRouter - Generating route for: ${settings.name}');
+    
     switch (settings.name) {
       case '/':
+        print('🚀 AppRouter - Routing to SplashController');
         return _fadeTransition(const SplashController());
       case '/home':
+        print('🚀 AppRouter - Routing to HomePage (Product Home)');
         return _fadeTransition(const HomePage());
       case '/signup':
+        print('🚀 AppRouter - Routing to SignUpPage');
         return _fadeTransition(const SignUpPage());
       case '/signin':
+        print('🚀 AppRouter - Routing to SignInPage');
         return _fadeTransition(const SignInPage());
       case '/details':
+        print('🚀 AppRouter - Routing to ProductDetailsPage');
         final product = settings.arguments as Product;
         return _slideTransition(ProductDetailsPage(product: product));
       case '/update':
+        print('🚀 AppRouter - Routing to AddUpdatePage');
         final product = settings.arguments as Product?;
         return _scaleFadeTransition(AddUpdatePage(product: product));
       case '/search': // <-- new case
+        print('🚀 AppRouter - Routing to SearchPage');
         return _fadeTransition(const SearchPage());
       case '/chats':
+        print('🚀 AppRouter - Routing to ChatListPage');
         return _fadeTransition(const ChatListPage());
       case '/chat-detail':
+        print('🚀 AppRouter - Routing to ChatDetailPage');
         final chat = settings.arguments as Chat;
         return _slideTransition(ChatDetailPage(chat: chat));
       case '/chat-home':
+        print('🚀 AppRouter - Routing to ChatListPage (chat-home)');
         return _fadeTransition(const ChatListPage());
       default:
+        print('❌ AppRouter - No route defined for: ${settings.name}');
         return MaterialPageRoute(
           builder: (_) => Scaffold(
             body: Center(child: Text('No route defined for ${settings.name}')),

@@ -61,14 +61,27 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   }
 
   Future<void> _onSignOut(SignOutEvent event, Emitter<AuthState> emit) async {
+    print('🚀 AuthBloc - _onSignOut called');
     emit(AuthLoading());
 
-    final result = await signOutUseCase(NoParams());
+    try {
+      print('🚀 AuthBloc - Calling signOutUseCase...');
+      final result = await signOutUseCase(NoParams());
 
-    result.fold(
-      (failure) => emit(AuthError(failure.toString())),
-      (_) => emit(Unauthenticated()),
-    );
+      result.fold(
+        (failure) {
+          print('❌ AuthBloc - Sign out failed: ${failure.toString()}');
+          emit(AuthError(failure.toString()));
+        },
+        (_) {
+          print('✅ AuthBloc - Sign out successful, emitting Unauthenticated');
+          emit(Unauthenticated());
+        },
+      );
+    } catch (e) {
+      print('❌ AuthBloc - Exception in sign out: $e');
+      emit(AuthError('Exception during sign out: $e'));
+    }
   }
 
   Future<void> _onCheckAuthStatus(CheckAuthStatusEvent event, Emitter<AuthState> emit) async {

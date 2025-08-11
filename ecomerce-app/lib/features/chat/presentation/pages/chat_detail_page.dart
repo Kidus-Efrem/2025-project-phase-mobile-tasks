@@ -26,6 +26,8 @@ class ChatDetailPage extends StatefulWidget {
 class _ChatDetailPageState extends State<ChatDetailPage> {
   final TextEditingController _messageController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
+  List<Message> _messages = [];
+  bool _isLoading = true;
 
   @override
   void initState() {
@@ -43,14 +45,51 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
   }
 
   void _sendMessage() {
+    print('🚀 ChatDetailPage - _sendMessage called');
+    print('🚀 ChatDetailPage - Message content: "${_messageController.text.trim()}"');
+    print('🚀 ChatDetailPage - Chat ID: "${widget.chat.id}"');
+    
     if (_messageController.text.trim().isNotEmpty) {
+      final content = _messageController.text.trim();
+      _messageController.clear();
+      
+      print('🚀 ChatDetailPage - Content trimmed: "$content"');
+      
+      // Add message immediately to UI for instant feedback
+      final currentUser = _getCurrentUser();
+      print('🚀 ChatDetailPage - Current user: ${currentUser?.name} (ID: ${currentUser?.id})');
+      
+      if (currentUser != null) {
+        final tempMessage = Message(
+          id: DateTime.now().millisecondsSinceEpoch.toString(),
+          sender: currentUser,
+          chat: widget.chat,
+          content: content,
+          type: 'text',
+          createdAt: DateTime.now(),
+        );
+        
+        print('🚀 ChatDetailPage - Created temp message with ID: ${tempMessage.id}');
+        
+        setState(() {
+          _messages.add(tempMessage);
+        });
+        print('🚀 ChatDetailPage - Added temp message to UI. Total messages: ${_messages.length}');
+        _scrollToBottom();
+      } else {
+        print('❌ ChatDetailPage - Current user is null!');
+      }
+      
+      // Send via socket
+      print('🚀 ChatDetailPage - Dispatching SendMessage event to ChatBloc');
       context.read<ChatBloc>().add(SendMessage(
         chatId: widget.chat.id,
-        content: _messageController.text.trim(),
+        content: content,
         type: 'text',
       ));
-      _messageController.clear();
-      _scrollToBottom();
+      print('🚀 ChatDetailPage - SendMessage event dispatched');
+    } else {
+      print('❌ ChatDetailPage - Message content is empty, not sending');
     }
   }
 
@@ -105,31 +144,71 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
       body: Column(
         children: [
           Expanded(
-            child: BlocBuilder<ChatBloc, ChatState>(
-              builder: (context, state) {
-                if (state is ChatLoading) {
-                  return const Center(
-                    child: CircularProgressIndicator(),
-                  );
-                } else if (state is MessagesLoaded && state.chatId == widget.chat.id) {
-                  return ListView.builder(
-                    controller: _scrollController,
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                    itemCount: state.messages.length,
-                    itemBuilder: (context, index) {
-                      final message = state.messages[index];
-                      final isMe = _isCurrentUser(message.sender);
-                      final selfInitials = _getInitials(_getCurrentUserName());
-                      final otherInitials = _getInitials(_getOtherUserName());
-                      return MessageBubble(
-                        message: message,
-                        isMe: isMe,
-                        senderLabel: isMe ? 'You' : _getOtherUserName(),
-                        avatarText: isMe ? selfInitials : otherInitials,
-                      );
-                    },
-                  );
-                } else if (state is ChatError) {
+            child: MultiBlocListener(
+              listeners: [
+                // Listen for socket messages
+                BlocListener<ChatBloc, ChatState>(
+                  listener: (context, state) {
+                    print('🚀 ChatDetailPage - BlocListener state: ${state.runtimeType}');
+                    
+                    if (state is MessageReceived) {
+                      print('🚀 ChatDetailPage - MessageReceived state detected');
+                      print('🚀 ChatDetailPage - Received message content: "${state.message.content}"');
+                      print('🚀 ChatDetailPage - Received message chat ID: "${state.message.chat.id}"');
+                      print('🚀 ChatDetailPage - Current chat ID: "${widget.chat.id}"');
+                      
+                      // Handle incoming socket message
+                      final message = state.message;
+                      if (message.chat.id == widget.chat.id) {
+                        print('✅ ChatDetailPage - Message belongs to current chat, adding to UI');
+                        setState(() {
+                          // Check if message already exists to avoid duplicates
+                          if (!_messages.any((m) => m.id == message.id)) {
+                            _messages.add(message);
+                            print('✅ ChatDetailPage - Message added to UI. Total messages: ${_messages.length}');
+                          } else {
+                            print('🔄 ChatDetailPage - Message already exists, skipping');
+                          }
+                        });
+                        _scrollToBottom();
+                      } else {
+                        print('❌ ChatDetailPage - Message does not belong to current chat');
+                      }
+                    }
+                  },
+                ),
+              ],
+              child: BlocBuilder<ChatBloc, ChatState>(
+                builder: (context, state) {
+                  if (state is ChatLoading && _isLoading) {
+                    return const Center(
+                      child: CircularProgressIndicator(),
+                    );
+                  } else if (state is MessagesLoaded && state.chatId == widget.chat.id) {
+                    // Update local messages list with loaded messages
+                    if (_isLoading) {
+                      _messages = List.from(state.messages);
+                      _isLoading = false;
+                    }
+                    
+                    return ListView.builder(
+                      controller: _scrollController,
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                      itemCount: _messages.length,
+                      itemBuilder: (context, index) {
+                        final message = _messages[index];
+                        final isMe = _isCurrentUser(message.sender);
+                        final selfInitials = _getInitials(_getCurrentUserName());
+                        final otherInitials = _getInitials(_getOtherUserName());
+                        return MessageBubble(
+                          message: message,
+                          isMe: isMe,
+                          senderLabel: isMe ? 'You' : _getOtherUserName(),
+                          avatarText: isMe ? selfInitials : otherInitials,
+                        );
+                      },
+                    );
+                  } else if (state is ChatError) {
                   return Center(
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,

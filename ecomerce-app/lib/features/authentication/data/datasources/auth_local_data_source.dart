@@ -39,7 +39,17 @@ class AuthLocalDataSourceImpl implements AuthLocalDataSource {
 
   @override
   Future<void> clearCachedUser() async {
+    print('🚀 AuthLocalDataSource - clearCachedUser called');
+    print('🚀 AuthLocalDataSource - Removing key: $cachedUserKey');
+    
+    final hadCachedUser = await hasCachedUser();
+    print('🚀 AuthLocalDataSource - Had cached user before clearing: $hadCachedUser');
+    
     await sharedPreferences.remove(cachedUserKey);
+    
+    final hasCachedUserAfter = await hasCachedUser();
+    print('🚀 AuthLocalDataSource - Has cached user after clearing: $hasCachedUserAfter');
+    print('✅ AuthLocalDataSource - Cache cleared successfully');
   }
 
   @override
