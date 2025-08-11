@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../../../main.dart'; // <-- Import your routeObserver here
 import '../bloc/chat_bloc.dart';
 import '../bloc/chat_event.dart';
 import '../bloc/chat_state.dart';
@@ -16,15 +17,35 @@ class ChatListPage extends StatefulWidget {
   State<ChatListPage> createState() => _ChatListPageState();
 }
 
-class _ChatListPageState extends State<ChatListPage> {
+class _ChatListPageState extends State<ChatListPage> with RouteAware {
   @override
-  void initState() {
-    super.initState();
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Subscribe to route changes
+    routeObserver.subscribe(this, ModalRoute.of(context)!);
+    // Initial load
+    context.read<ChatBloc>().add(LoadChats());
+  }
+
+  @override
+  void dispose() {
+    routeObserver.unsubscribe(this);
+    super.dispose();
+  }
+
+  @override
+  void didPopNext() {
+    // Called when returning to this page from another page
+    print('🔄 ChatListPage - didPopNext: Reloading chats');
     context.read<ChatBloc>().add(LoadChats());
   }
 
   @override
   Widget build(BuildContext context) {
+    // ... your existing build method remains unchanged ...
+    // (copy everything from your current build method here)
+    // No changes needed to the rest of your code!
+    // ...
     return Scaffold(
       appBar: AppBar(
         title: const Text('Chats'),
@@ -384,7 +405,7 @@ class _ChatListPageState extends State<ChatListPage> {
                                 final chat = state.chats[index];
                                 return ChatListItem(
                                   chat: chat,
-                                  onTap: () {
+                                  onTap: ()  {
                                     // Debug print to see what chat is being passed
                                     print('🔍 ChatListPage - Tapping chat: ${chat.id}');
                                     print('🔍 ChatListPage - Full chat object: $chat');

@@ -176,49 +176,47 @@ class ChatRepositoryImpl implements ChatRepository {
   }
 
   @override
-  Future<Either<Failure, Message>> sendMessage(
-    String chatId,
-    String content,
-    String type,
-  ) async {
-    if (await networkInfo.isConnected) {
-
-      try {
-        final token = _getCurrentUserToken();
-        if (token == null) {
-          return Left(AuthFailure());
-        }
-
-        print(
-          '🔄 Repository: Attempting to send message to chat $chatId via remote API...',
-        );
-
-        // First try to send via remote API
-        final remoteMessage = await remoteDataSource.sendMessage(
-          chatId,
-          content,
-          type,
-          token,
-        );
-        print('✅ Repository: Message sent successfully via API');
-
-        // Also send via socket service for real-time updates
-        await chatService.sendMessage(chatId, content, type);
-        print('✅ Repository: Message also sent via socket service');
-
-        return Right(remoteMessage);
-      } on ServerException {
-        print('❌ Repository: Server exception occurred');
-        return Left(ServerFailure());
-      } catch (e) {
-        print('❌ Repository: Unexpected error: $e');
-        return Left(ServerFailure());
+Future<Either<Failure, Message>> sendMessage(
+  String chatId,
+  String content,
+  String type,
+) async {
+  if (await networkInfo.isConnected) {
+    try {
+      final token = _getCurrentUserToken();
+      if (token == null) {
+        return Left(AuthFailure());
       }
-    } else {
-      print('❌ Repository: No internet connection');
-      return Left(NetworkFailure());
+
+      print('🔄 Repository: Attempting to send message to chat $chatId via socket service...');
+
+      // Send message via socket only (no return value)
+      chatService.sendMessage(chatId, content, type);
+      print('✅ Repository: Message sent via socket service (void return)');
+
+      // Return a dummy Message to satisfy the return type
+      final message = MessageModel(
+        id: '', // or generate a temporary ID if needed
+        sender: UserModel(id: '', name: '', email: ''), // fill with actual user if available
+        chat: ChatModel(id: chatId, user1: UserModel(id: '', name: '', email: ''), user2: UserModel(id: '', name: '', email: '')), // fill with actual chat if available
+        content: content,
+        type: type,
+        createdAt: DateTime.now(),
+      );
+
+      return Right(message);
+    } on ServerException {
+      print('❌ Repository: Server exception occurred');
+      return Left(ServerFailure());
+    } catch (e) {
+      print('❌ Repository: Unexpected error: $e');
+      return Left(ServerFailure());
     }
+  } else {
+    print('❌ Repository: No internet connection');
+    return Left(NetworkFailure());
   }
+}
 
   @override
   Future<Either<Failure, void>> connectToSocket(String token) async {

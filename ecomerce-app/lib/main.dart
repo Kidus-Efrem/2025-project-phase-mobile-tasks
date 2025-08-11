@@ -25,7 +25,7 @@ import 'features/chat/domain/usecases/get_messages_usecase.dart';
 import 'features/chat/domain/usecases/send_message_usecase.dart';
 import 'features/chat/presentation/bloc/chat_bloc.dart';
 import 'features/chat/data/services/chat_integration_service.dart';
-
+final RouteObserver<ModalRoute<void>> routeObserver = RouteObserver<ModalRoute<void>>();
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
@@ -117,6 +117,7 @@ class MyApp extends StatelessWidget {
         BlocProvider(create: (context) => chatBloc),
       ],
       child: MaterialApp(
+        navigatorObservers:[routeObserver],
         debugShowCheckedModeBanner: false,
         title: AppConfig.appName,
         initialRoute: '/chats',
