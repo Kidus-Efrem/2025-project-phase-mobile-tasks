@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../../../../main.dart'; // <-- Import your routeObserver here
+import '../../../../main.dart';
 import '../bloc/chat_bloc.dart';
 import '../bloc/chat_event.dart';
 import '../bloc/chat_state.dart';
@@ -21,12 +21,11 @@ class ChatListPage extends StatefulWidget {
 class _ChatListPageState extends State<ChatListPage> with RouteAware {
   List<User> _users = [];
   List<Chat> _chats = [];
+
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    // Subscribe to route changes
     routeObserver.subscribe(this, ModalRoute.of(context)!);
-    // Initial load
     context.read<ChatBloc>().add(LoadChats());
     context.read<ChatBloc>().add(LoadUsers());
   }
@@ -39,7 +38,6 @@ class _ChatListPageState extends State<ChatListPage> with RouteAware {
 
   @override
   void didPopNext() {
-    // Called when returning to this page from another page
     print('🔄 ChatListPage - didPopNext: Reloading chats and users');
     context.read<ChatBloc>().add(LoadChats());
     context.read<ChatBloc>().add(LoadUsers());
@@ -47,10 +45,6 @@ class _ChatListPageState extends State<ChatListPage> with RouteAware {
 
   @override
   Widget build(BuildContext context) {
-    // ... your existing build method remains unchanged ...
-    // (copy everything from your current build method here)
-    // No changes needed to the rest of your code!
-    // ...
     return Scaffold(
       appBar: AppBar(
         title: const Text('Chats'),
@@ -61,7 +55,6 @@ class _ChatListPageState extends State<ChatListPage> with RouteAware {
           IconButton(
             icon: const Icon(Icons.search),
             onPressed: () {
-              // TODO: Implement search functionality
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(content: Text('Search feature coming soon!')),
               );
@@ -149,16 +142,10 @@ class _ChatListPageState extends State<ChatListPage> with RouteAware {
               onTap: () async {
                 print('🚀 ChatListPage - Sign out button tapped');
                 Navigator.pop(context);
-                
-                // Trigger sign out event
                 print('🚀 ChatListPage - Dispatching SignOutEvent');
                 context.read<AuthBloc>().add(SignOutEvent());
-                
-                // Wait a bit for the sign out to complete
                 await Future.delayed(const Duration(milliseconds: 500));
-                
                 print('🚀 ChatListPage - Navigating to sign in page');
-                // Navigate to sign in and clear all routes
                 Navigator.pushNamedAndRemoveUntil(context, '/signin', (route) => false);
               },
             ),
@@ -193,7 +180,6 @@ class _ChatListPageState extends State<ChatListPage> with RouteAware {
                 context.read<ChatBloc>().add(LoadUsers());
               } else if (state is Unauthenticated) {
                 print('🔐 ChatListPage: User unauthenticated');
-                // Navigate to sign in when user logs out
                 if (ModalRoute.of(context)?.isCurrent ?? false) {
                   Navigator.pushNamedAndRemoveUntil(context, '/signin', (route) => false);
                 }
@@ -206,7 +192,7 @@ class _ChatListPageState extends State<ChatListPage> with RouteAware {
             print('🔍 ChatListPage - Current state: ${state.runtimeType}');
             print('🔍 ChatListPage - Local users count: ${_users.length}');
             print('🔍 ChatListPage - Local chats count: ${_chats.length}');
-            // Update local state based on bloc state
+            
             if (state is UsersLoaded) {
               _users = state.users;
               print('🔍 ChatListPage - Users loaded: ${_users.length} users');
@@ -221,7 +207,6 @@ class _ChatListPageState extends State<ChatListPage> with RouteAware {
               }
             } else if (state is ChatCreated) {
               print('🔍 ChatListPage - Chat created: ${state.chat.id}');
-              // Navigate to chat detail page with the created chat
               Navigator.pushNamed(
                 context,
                 '/chat-detail',
@@ -236,7 +221,6 @@ class _ChatListPageState extends State<ChatListPage> with RouteAware {
             } else if (state is UsersLoaded || state is ChatsLoaded || state is ChatCreated || _chats.isNotEmpty || _users.isNotEmpty) {
               return Column(
                 children: [
-                  // Top header with search and stories/status row
                   Container(
                     width: double.infinity,
                     padding: const EdgeInsets.fromLTRB(16, 20, 16, 16),
@@ -261,7 +245,6 @@ class _ChatListPageState extends State<ChatListPage> with RouteAware {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        // Search bar (non-functional placeholder to preserve behavior)
                         GestureDetector(
                           onTap: () {
                             ScaffoldMessenger.of(context).showSnackBar(
@@ -300,7 +283,6 @@ class _ChatListPageState extends State<ChatListPage> with RouteAware {
                             itemCount: _users.isEmpty ? 1 : _users.length + 1,
                             separatorBuilder: (_, __) => const SizedBox(width: 12),
                             itemBuilder: (context, index) {
-                              // First item: "My status"
                               if (index == 0) {
                                 return SizedBox(
                                   width: 70,
@@ -414,7 +396,6 @@ class _ChatListPageState extends State<ChatListPage> with RouteAware {
                       ],
                     ),
                   ),
-                  // Chat List
                   Expanded(
                     child: _chats.isEmpty
                         ? const Center(
@@ -456,11 +437,9 @@ class _ChatListPageState extends State<ChatListPage> with RouteAware {
                                 final chat = _chats[index];
                                 return ChatListItem(
                                   chat: chat,
-                                  onTap: ()  {
-                                    // Debug print to see what chat is being passed
+                                  onTap: () {
                                     print('🔍 ChatListPage - Tapping chat: ${chat.id}');
                                     print('🔍 ChatListPage - Full chat object: $chat');
-                                    // Navigate to chat detail page
                                     Navigator.pushNamed(
                                       context,
                                       '/chat-detail',
@@ -525,7 +504,6 @@ class _ChatListPageState extends State<ChatListPage> with RouteAware {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          // Show options for new chat or other actions
           _showOptionsDialog(context);
         },
         child: const Icon(Icons.add),
@@ -547,7 +525,6 @@ class _ChatListPageState extends State<ChatListPage> with RouteAware {
                 title: const Text('New Chat'),
                 onTap: () {
                   Navigator.pop(context);
-                  // TODO: Implement new chat functionality
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(content: Text('New chat feature coming soon!')),
                   );
@@ -558,7 +535,6 @@ class _ChatListPageState extends State<ChatListPage> with RouteAware {
                 title: const Text('Settings'),
                 onTap: () {
                   Navigator.pop(context);
-                  // TODO: Navigate to settings
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(content: Text('Settings coming soon!')),
                   );
@@ -570,16 +546,10 @@ class _ChatListPageState extends State<ChatListPage> with RouteAware {
                 onTap: () async {
                   print('🚀 ChatListPage - Sign out button tapped (dialog)');
                   Navigator.pop(context);
-                  
-                  // Trigger sign out event
                   print('🚀 ChatListPage - Dispatching SignOutEvent (dialog)');
                   context.read<AuthBloc>().add(SignOutEvent());
-                  
-                  // Wait a bit for the sign out to complete
                   await Future.delayed(const Duration(milliseconds: 500));
-                  
                   print('🚀 ChatListPage - Navigating to sign in page (dialog)');
-                  // Navigate to sign in and clear all routes
                   Navigator.pushNamedAndRemoveUntil(context, '/signin', (route) => false);
                 },
               ),
