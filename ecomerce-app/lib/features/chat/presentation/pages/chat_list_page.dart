@@ -317,27 +317,27 @@ class _ChatListPageState extends State<ChatListPage> with RouteAware {
                                               child: const Icon(Icons.person, color: Colors.blue),
                                             ),
                                           ),
-                                        Positioned(
-                                          right: 0,
-                                          bottom: 0,
-                                          child: Container(
-                                            width: 20,
-                                            height: 20,
-                                            decoration: BoxDecoration(
-                                              color: Colors.white,
-                                              shape: BoxShape.circle,
-                                            ),
+                                          Positioned(
+                                            right: 0,
+                                            bottom: 0,
                                             child: Container(
-                                              margin: const EdgeInsets.all(2),
-                                              decoration: const BoxDecoration(
-                                                color: Colors.blue,
+                                              width: 20,
+                                              height: 20,
+                                              decoration: BoxDecoration(
+                                                color: Colors.white,
                                                 shape: BoxShape.circle,
                                               ),
-                                              child: const Icon(Icons.add, size: 14, color: Colors.white),
+                                              child: Container(
+                                                margin: const EdgeInsets.all(2),
+                                                decoration: const BoxDecoration(
+                                                  color: Colors.blue,
+                                                  shape: BoxShape.circle,
+                                                ),
+                                                child: const Icon(Icons.add, size: 14, color: Colors.white),
+                                              ),
                                             ),
                                           ),
-                                        ),
-                                      ],
+                                        ],
                                     ),
                                     const SizedBox(height: 6),
                                     const Text(
