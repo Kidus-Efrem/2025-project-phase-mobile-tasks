@@ -7,6 +7,7 @@ import '../widgets/chat_list_item.dart';
 import '../../domain/entities/chat.dart';
 import '../../../authentication/presentation/bloc/auth_bloc.dart';
 import '../../../authentication/presentation/bloc/auth_state.dart';
+import '../../../authentication/presentation/bloc/auth_event.dart';
 
 class ChatListPage extends StatefulWidget {
   const ChatListPage({super.key});
