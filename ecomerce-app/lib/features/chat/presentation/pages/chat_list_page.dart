@@ -338,13 +338,14 @@ class _ChatListPageState extends State<ChatListPage> with RouteAware {
                                             ),
                                           ),
                                         ],
-                                    ),
-                                    const SizedBox(height: 6),
-                                    const Text(
-                                      'My status',
-                                      style: TextStyle(color: Colors.white, fontSize: 12),
-                                    ),
-                                  ],
+                                      ),
+                                      const SizedBox(height: 6),
+                                      const Text(
+                                        'My status',
+                                        style: TextStyle(color: Colors.white, fontSize: 12),
+                                      ),
+                                    ],
+                                  ),
                                 );
                               }
                               final user = _users[index - 1];
