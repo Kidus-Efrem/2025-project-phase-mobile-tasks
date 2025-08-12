@@ -36,12 +36,11 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
     print('🔍 ChatDetailPage - Chat object: ${widget.chat}');
     print('🔍 ChatDetailPage - Chat user1: ${widget.chat.user1.name}');
     print('🔍 ChatDetailPage - Chat user2: ${widget.chat.user2.name}');
-
+    
     // Add a small delay to ensure the page is fully loaded before loading messages
     Future.delayed(const Duration(milliseconds: 100), () {
       if (mounted) {
-        print(
-            '🔍 ChatDetailPage - Loading messages for chat: ${widget.chat.id}');
+        print('🔍 ChatDetailPage - Loading messages for chat: ${widget.chat.id}');
         context.read<ChatBloc>().add(LoadMessages(widget.chat.id));
       }
     });
@@ -56,21 +55,19 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
 
   void _sendMessage() {
     print('🚀 ChatDetailPage - _sendMessage called');
-    print(
-        '🚀 ChatDetailPage - Message content: "${_messageController.text.trim()}"');
+    print('🚀 ChatDetailPage - Message content: "${_messageController.text.trim()}"');
     print('🚀 ChatDetailPage - Chat ID: "${widget.chat.id}"');
-
+    
     if (_messageController.text.trim().isNotEmpty) {
       final content = _messageController.text.trim();
       _messageController.clear();
-
+      
       print('🚀 ChatDetailPage - Content trimmed: "$content"');
-
+      
       // Add message immediately to UI for instant feedback
       final currentUser = _getCurrentUser();
-      print(
-          '🚀 ChatDetailPage - Current user: ${currentUser?.name} (ID: ${currentUser?.id})');
-
+      print('🚀 ChatDetailPage - Current user: ${currentUser?.name} (ID: ${currentUser?.id})');
+      
       if (currentUser != null) {
         final tempMessage = Message(
           id: DateTime.now().millisecondsSinceEpoch.toString(),
@@ -80,27 +77,25 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
           type: 'text',
           createdAt: DateTime.now(),
         );
-
-        print(
-            '🚀 ChatDetailPage - Created temp message with ID: ${tempMessage.id}');
-
+        
+        print('🚀 ChatDetailPage - Created temp message with ID: ${tempMessage.id}');
+        
         setState(() {
           _messages.add(tempMessage);
         });
-        print(
-            '🚀 ChatDetailPage - Added temp message to UI. Total messages: ${_messages.length}');
+        print('🚀 ChatDetailPage - Added temp message to UI. Total messages: ${_messages.length}');
         _scrollToBottom();
       } else {
         print('❌ ChatDetailPage - Current user is null!');
       }
-
+      
       // Send via socket
       print('🚀 ChatDetailPage - Dispatching SendMessage event to ChatBloc');
       context.read<ChatBloc>().add(SendMessage(
-            chatId: widget.chat.id,
-            content: content,
-            type: 'text',
-          ));
+        chatId: widget.chat.id,
+        content: content,
+        type: 'text',
+      ));
       print('🚀 ChatDetailPage - SendMessage event dispatched');
     } else {
       print('❌ ChatDetailPage - Message content is empty, not sending');
@@ -136,12 +131,9 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(_getOtherUserName(),
-                    style: const TextStyle(
-                        fontSize: 16, fontWeight: FontWeight.w600)),
+                Text(_getOtherUserName(), style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
                 const SizedBox(height: 2),
-                const Text('8 members, 5 online',
-                    style: TextStyle(fontSize: 12, color: Colors.grey)),
+                const Text('8 members, 5 online', style: TextStyle(fontSize: 12, color: Colors.grey)),
               ],
             ),
           ],
@@ -166,39 +158,30 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
                 // Listen for socket messages
                 BlocListener<ChatBloc, ChatState>(
                   listener: (context, state) {
-                    print(
-                        '🚀 ChatDetailPage - BlocListener state: ${state.runtimeType}');
-
+                    print('🚀 ChatDetailPage - BlocListener state: ${state.runtimeType}');
+                    
                     if (state is MessageReceivedState) {
-                      print(
-                          '🚀 ChatDetailPage - MessageReceivedState detected');
-                      print(
-                          '🚀 ChatDetailPage - Received message content: "${state.message.content}"');
-                      print(
-                          '🚀 ChatDetailPage - Received message chat ID: "${state.message.chat.id}"');
-                      print(
-                          '🚀 ChatDetailPage - Current chat ID: "${widget.chat.id}"');
-
+                      print('🚀 ChatDetailPage - MessageReceivedState detected');
+                      print('🚀 ChatDetailPage - Received message content: "${state.message.content}"');
+                      print('🚀 ChatDetailPage - Received message chat ID: "${state.message.chat.id}"');
+                      print('🚀 ChatDetailPage - Current chat ID: "${widget.chat.id}"');
+                      
                       // Handle incoming socket message
                       final message = state.message;
                       if (message.chat.id == widget.chat.id) {
-                        print(
-                            '✅ ChatDetailPage - Message belongs to current chat, adding to UI');
+                        print('✅ ChatDetailPage - Message belongs to current chat, adding to UI');
                         setState(() {
                           // Check if message already exists to avoid duplicates
                           if (!_messages.any((m) => m.id == message.id)) {
                             _messages.add(message);
-                            print(
-                                '✅ ChatDetailPage - Message added to UI. Total messages: ${_messages.length}');
+                            print('✅ ChatDetailPage - Message added to UI. Total messages: ${_messages.length}');
                           } else {
-                            print(
-                                '🔄 ChatDetailPage - Message already exists, skipping');
+                            print('🔄 ChatDetailPage - Message already exists, skipping');
                           }
                         });
                         _scrollToBottom();
                       } else {
-                        print(
-                            '❌ ChatDetailPage - Message does not belong to current chat');
+                        print('❌ ChatDetailPage - Message does not belong to current chat');
                       }
                     }
                   },
@@ -210,24 +193,21 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
                     return const Center(
                       child: CircularProgressIndicator(),
                     );
-                  } else if (state is MessagesLoaded &&
-                      state.chatId == widget.chat.id) {
+                  } else if (state is MessagesLoaded && state.chatId == widget.chat.id) {
                     // Update local messages list with loaded messages
                     if (_isLoading) {
                       _messages = List.from(state.messages);
                       _isLoading = false;
                     }
-
+                    
                     return ListView.builder(
                       controller: _scrollController,
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 16, vertical: 12),
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                       itemCount: _messages.length,
                       itemBuilder: (context, index) {
                         final message = _messages[index];
                         final isMe = _isCurrentUser(message.sender);
-                        final selfInitials =
-                            _getInitials(_getCurrentUserName());
+                        final selfInitials = _getInitials(_getCurrentUserName());
                         final otherInitials = _getInitials(_getOtherUserName());
                         return MessageBubble(
                           message: message,
@@ -252,9 +232,7 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
                           const SizedBox(height: 16),
                           ElevatedButton(
                             onPressed: () {
-                              context
-                                  .read<ChatBloc>()
-                                  .add(LoadMessages(widget.chat.id));
+                              context.read<ChatBloc>().add(LoadMessages(widget.chat.id));
                             },
                             child: const Text('Retry'),
                           ),
@@ -262,19 +240,17 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
                       ),
                     );
                   }
-
+                  
                   // Default case - show messages if we have any, otherwise show "No messages"
                   if (_messages.isNotEmpty) {
                     return ListView.builder(
                       controller: _scrollController,
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 16, vertical: 12),
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                       itemCount: _messages.length,
                       itemBuilder: (context, index) {
                         final message = _messages[index];
                         final isMe = _isCurrentUser(message.sender);
-                        final selfInitials =
-                            _getInitials(_getCurrentUserName());
+                        final selfInitials = _getInitials(_getCurrentUserName());
                         final otherInitials = _getInitials(_getOtherUserName());
                         return MessageBubble(
                           message: message,
@@ -285,7 +261,7 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
                       },
                     );
                   }
-
+                  
                   return const Center(
                     child: Text('No messages yet'),
                   );
