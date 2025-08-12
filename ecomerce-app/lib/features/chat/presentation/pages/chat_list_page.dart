@@ -21,7 +21,11 @@ class ChatListPage extends StatefulWidget {
 class _ChatListPageState extends State<ChatListPage> with RouteAware {
   List<User> _users = [];
   List<Chat> _chats = [];
+  List<User> _filteredUsers = [];
+  List<Chat> _filteredChats = [];
   bool _isInitialized = false;
+  bool _isSearching = false;
+  final TextEditingController _searchController = TextEditingController();
 
   @override
   void didChangeDependencies() {
@@ -47,8 +51,50 @@ class _ChatListPageState extends State<ChatListPage> with RouteAware {
     context.read<ChatBloc>().add(LoadUsers());
   }
 
+  void _filterData(String query) {
+    if (query.isEmpty) {
+      setState(() {
+        _filteredUsers = List.from(_users);
+        _filteredChats = List.from(_chats);
+        _isSearching = false;
+      });
+      return;
+    }
+
+    setState(() {
+      _isSearching = true;
+      final lowercaseQuery = query.toLowerCase();
+
+      // Filter users by name or email
+      _filteredUsers = _users.where((user) {
+        return user.name.toLowerCase().contains(lowercaseQuery) ||
+            user.email.toLowerCase().contains(lowercaseQuery);
+      }).toList();
+
+      // Filter chats by user names
+      _filteredChats = _chats.where((chat) {
+        return chat.user1.name.toLowerCase().contains(lowercaseQuery) ||
+            chat.user2.name.toLowerCase().contains(lowercaseQuery);
+      }).toList();
+    });
+
+    print('🔍 ChatListPage - Search query: "$query"');
+    print('🔍 ChatListPage - Filtered users: ${_filteredUsers.length}');
+    print('🔍 ChatListPage - Filtered chats: ${_filteredChats.length}');
+  }
+
+  void _clearSearch() {
+    _searchController.clear();
+    setState(() {
+      _filteredUsers = List.from(_users);
+      _filteredChats = List.from(_chats);
+      _isSearching = false;
+    });
+  }
+
   @override
   void dispose() {
+    _searchController.dispose();
     routeObserver.unsubscribe(this);
     super.dispose();
   }
@@ -71,9 +117,18 @@ class _ChatListPageState extends State<ChatListPage> with RouteAware {
           IconButton(
             icon: const Icon(Icons.search),
             onPressed: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Search feature coming soon!')),
-              );
+              // Focus on the search field
+              FocusScope.of(context).requestFocus(FocusNode());
+              Future.delayed(const Duration(milliseconds: 100), () {
+                // This will trigger the search field to be focused
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text(
+                        'Search is now active! Type to search users and chats.'),
+                    duration: Duration(seconds: 2),
+                  ),
+                );
+              });
             },
           ),
           IconButton(
@@ -214,6 +269,7 @@ class _ChatListPageState extends State<ChatListPage> with RouteAware {
 
             if (state is UsersLoaded) {
               _users = state.users;
+              _filteredUsers = List.from(_users);
               print('🔍 ChatListPage - Users loaded: ${_users.length} users');
               print(
                   '🔍 ChatListPage - Users source: Full user list from /users endpoint');
@@ -223,6 +279,7 @@ class _ChatListPageState extends State<ChatListPage> with RouteAware {
               }
             } else if (state is ChatsLoaded) {
               _chats = state.chats;
+              _filteredChats = List.from(_chats);
               print('🔍 ChatListPage - Chats loaded: ${_chats.length} chats');
               for (int i = 0; i < _chats.length; i++) {
                 print(
@@ -325,33 +382,38 @@ class _ChatListPageState extends State<ChatListPage> with RouteAware {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        GestureDetector(
-                          onTap: () {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                  content: Text('Search feature coming soon!')),
-                            );
-                          },
-                          child: Container(
-                            height: 44,
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(24),
-                            ),
-                            padding: const EdgeInsets.symmetric(horizontal: 12),
-                            child: const Row(
-                              children: [
-                                Icon(Icons.search, color: Colors.grey),
-                                SizedBox(width: 8),
-                                Expanded(
-                                  child: Text(
-                                    'Search',
-                                    style: TextStyle(color: Colors.grey),
+                        Container(
+                          height: 44,
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(24),
+                          ),
+                          padding: const EdgeInsets.symmetric(horizontal: 12),
+                          child: Row(
+                            children: [
+                              const Icon(Icons.search, color: Colors.grey),
+                              const SizedBox(width: 8),
+                              Expanded(
+                                child: TextField(
+                                  controller: _searchController,
+                                  onChanged: _filterData,
+                                  decoration: const InputDecoration(
+                                    hintText: 'Search users and chats...',
+                                    hintStyle: TextStyle(color: Colors.grey),
+                                    border: InputBorder.none,
+                                    contentPadding: EdgeInsets.zero,
                                   ),
+                                  style: const TextStyle(color: Colors.black87),
                                 ),
-                                Icon(Icons.mic_none, color: Colors.grey),
-                              ],
-                            ),
+                              ),
+                              if (_searchController.text.isNotEmpty)
+                                GestureDetector(
+                                  onTap: _clearSearch,
+                                  child: const Icon(Icons.clear,
+                                      color: Colors.grey),
+                                ),
+                              const Icon(Icons.mic_none, color: Colors.grey),
+                            ],
                           ),
                         ),
                         const SizedBox(height: 16),
@@ -415,8 +477,9 @@ class _ChatListPageState extends State<ChatListPage> with RouteAware {
                                   ),
                                 ),
                                 // User items
-                                ...List.generate(_users.length, (index) {
-                                  final user = _users[index];
+                                ...List.generate(_filteredUsers.length,
+                                    (index) {
+                                  final user = _filteredUsers[index];
                                   final name = user.name;
                                   return Padding(
                                     padding: const EdgeInsets.only(left: 12),
@@ -559,19 +622,21 @@ class _ChatListPageState extends State<ChatListPage> with RouteAware {
                     ),
                   ),
                   Expanded(
-                    child: _chats.isEmpty
+                    child: _isSearching &&
+                            _filteredUsers.isEmpty &&
+                            _filteredChats.isEmpty
                         ? const Center(
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 Icon(
-                                  Icons.chat_bubble_outline,
+                                  Icons.search_off,
                                   size: 64,
                                   color: Colors.grey,
                                 ),
                                 SizedBox(height: 16),
                                 Text(
-                                  'No chats yet',
+                                  'No results found',
                                   style: TextStyle(
                                     fontSize: 18,
                                     color: Colors.grey,
@@ -579,7 +644,7 @@ class _ChatListPageState extends State<ChatListPage> with RouteAware {
                                 ),
                                 SizedBox(height: 8),
                                 Text(
-                                  'Start a conversation to see chats here',
+                                  'Try a different search term',
                                   style: TextStyle(
                                     fontSize: 14,
                                     color: Colors.grey,
@@ -588,31 +653,60 @@ class _ChatListPageState extends State<ChatListPage> with RouteAware {
                               ],
                             ),
                           )
-                        : RefreshIndicator(
-                            onRefresh: () async {
-                              _loadData();
-                            },
-                            child: ListView.builder(
-                              itemCount: _chats.length,
-                              itemBuilder: (context, index) {
-                                final chat = _chats[index];
-                                return ChatListItem(
-                                  chat: chat,
-                                  onTap: () {
-                                    print(
-                                        '🔍 ChatListPage - Tapping chat: ${chat.id}');
-                                    print(
-                                        '🔍 ChatListPage - Full chat object: $chat');
-                                    Navigator.pushNamed(
-                                      context,
-                                      '/chat-detail',
-                                      arguments: chat,
+                        : _filteredChats.isEmpty && !_isSearching
+                            ? const Center(
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Icon(
+                                      Icons.chat_bubble_outline,
+                                      size: 64,
+                                      color: Colors.grey,
+                                    ),
+                                    SizedBox(height: 16),
+                                    Text(
+                                      'No chats yet',
+                                      style: TextStyle(
+                                        fontSize: 18,
+                                        color: Colors.grey,
+                                      ),
+                                    ),
+                                    SizedBox(height: 8),
+                                    Text(
+                                      'Start a conversation to see chats here',
+                                      style: TextStyle(
+                                        fontSize: 14,
+                                        color: Colors.grey,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              )
+                            : RefreshIndicator(
+                                onRefresh: () async {
+                                  _loadData();
+                                },
+                                child: ListView.builder(
+                                  itemCount: _filteredChats.length,
+                                  itemBuilder: (context, index) {
+                                    final chat = _filteredChats[index];
+                                    return ChatListItem(
+                                      chat: chat,
+                                      onTap: () {
+                                        print(
+                                            '🔍 ChatListPage - Tapping chat: ${chat.id}');
+                                        print(
+                                            '🔍 ChatListPage - Full chat object: $chat');
+                                        Navigator.pushNamed(
+                                          context,
+                                          '/chat-detail',
+                                          arguments: chat,
+                                        );
+                                      },
                                     );
                                   },
-                                );
-                              },
-                            ),
-                          ),
+                                ),
+                              ),
                   ),
                 ],
               );
