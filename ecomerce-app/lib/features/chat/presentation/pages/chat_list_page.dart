@@ -252,12 +252,32 @@ class _ChatListPageState extends State<ChatListPage> with RouteAware {
 
               // Ensure we have a valid chat before navigating
               if (state.chat.id.isNotEmpty) {
-                // Navigate to chat detail page
-                Navigator.pushNamed(
-                  context,
-                  '/chat-detail',
-                  arguments: state.chat,
-                );
+                print(
+                    '🔍 ChatListPage - Chat ID is valid, navigating to chat detail...');
+
+                // Add a small delay to ensure the snackbar is shown
+                Future.delayed(const Duration(milliseconds: 500), () {
+                  print(
+                      '🔍 ChatListPage - Starting navigation to chat detail...');
+                  try {
+                    Navigator.pushNamed(
+                      context,
+                      '/chat-detail',
+                      arguments: state.chat,
+                    );
+                    print(
+                        '🔍 ChatListPage - Navigation completed successfully');
+                  } catch (e) {
+                    print('❌ ChatListPage - Navigation failed: $e');
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text('Navigation failed: $e'),
+                        backgroundColor: Colors.red,
+                        duration: const Duration(seconds: 3),
+                      ),
+                    );
+                  }
+                });
               } else {
                 print('❌ ChatListPage - Cannot navigate: Chat ID is empty!');
                 ScaffoldMessenger.of(context).showSnackBar(
